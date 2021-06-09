@@ -1,0 +1,1 @@
+﻿[["loadcell",0,0,1,2],["loop",0,0,2,1],["macro",{"name":"copyone"},0,4,1],["copy",{"dx":"0","dy":"0","sx":"%x","sy":"0","sw":"24","sh":"24"},0,5,1],["wait",{"time":"50"},0,6,1],["endmacro",0,0,7,1],["label",{"name":"start"},0,9,1],["copyone",{"x":"0"},0,10,1],["jump",{"target":"*start"},0,11,1]]
