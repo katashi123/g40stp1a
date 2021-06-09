@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+<style type="text/css">
+	#meta-meta {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0.6);	
+	}
+	#meta-container {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 1136px;
+		height: 640px;
+	}
+
+	#dialog-container {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 50px;
+		left: 0;
+		width: 1136px;
+		height: 640px;
+		opacity: 0;
+		background-repeat: no-repeat;
+		background-position: center top;
+		background-image:url("");
+	}
+
+	.dialog-button {
+		cursor: pointer;
+		position: absolute;
+		top: 400px;
+		width: 251px;
+		height: 129px;
+		background-position: 0 0;
+	}
+
+	.dialog-button:hover {
+		background-position: 251px 0;
+	}
+
+	.dialog-button:active {
+		background-position: 251px 0;
+	}
+
+	.dialog-button-1of2 {
+		left: 310px;
+		background-image:url("plugin/html_overlay/html/dialogimg/quickload_yes.png");
+	}
+
+	.dialog-button-2of2 {
+		left: 575px;
+		background-image:url("plugin/html_overlay/html/dialogimg/quickload_no.png");
+	}
+
+	.dialog-button-1of1 {
+		left: 545px;
+	}
+</style>
+</head>
+<body>
+<div id="meta-meta">
+<div id="meta-container">
+	<div id="dialog-container">
+		<div class="dialog-button dialog-button-1of2" id="yes"></div>
+		<div class="dialog-button dialog-button-2of2" id="no"></div>
+	</div>
+</div>
+</div>
+
+<script>
+	Overlay(function (callback, args) {
+
+		function onWindowResized() {
+			var widthScale = innerWidth / config.scWidth;
+			var heightScale = innerHeight / config.scHeight;
+			var scale = Math.min(widthScale,heightScale);
+			var left = (innerWidth - config.scWidth * scale) / 2;
+			var top = (innerHeight - config.scHeight * scale) / 2;
+
+			$('#meta-container')
+				.css('transformOrigin','0% 0%')
+				.css('transform','scale('+scale+')')
+				.css('left', left + 'px')
+				.css('top', top + 'px');
+		}
+
+		onWindowResized();
+		$('#meta-meta').css('opacity', 1);
+		if (tf.tmp.nschecklogin_title){
+			$('#dialog-container')
+				.css('backgroundImage', 'url("plugin/html_overlay/html/dialogimg/nscheck_ask1.png")')
+				.css('opacity', 1);
+		}else{
+			$('#dialog-container')
+				.css('backgroundImage', 'url("plugin/html_overlay/html/dialogimg/nscheck_ask2.png")')
+				.css('opacity', 1);
+		}
+
+		var dialogTimer = setInterval(function(){
+	        onWindowResized();
+		},100);
+
+
+	//波紋表示
+		if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+			$(this).bind('touchend', function() {
+				var widthScale = innerWidth / config.scWidth;
+				var heightScale = innerHeight / config.scHeight;
+				var scale = Math.min(widthScale,heightScale);
+
+				var z = scale;//Number($('#meta-container').css('transform').match(/.*?,/i)[0].slice(7, -1));
+			    event.preventDefault();                     // ページが動いたり、反応を止める（A タグなど）
+			    var x = (event.changedTouches[0].pageX-Math.floor(Number($('#meta-container').css('left').slice(0,-2))))/z; // X 座標の位置
+			    var y = (event.changedTouches[0].pageY-Math.floor(Number($('#meta-container').css('top').slice(0,-2))))/z; // Y 座標の位置
+
+				$('#meta-container').append('<div class=locatedPoint></div>')
+				$('.locatedPoint').css({position:'fixed','top':(y)-25,'left':(x)-25,display:'block','z-index':999})
+					.css({'-webkit-animation':'tapev 0.5s ease-out','animation':'tapev 0.5s ease-out'});
+				setTimeout(function(){
+					$('.locatedPoint').remove(':first');
+				},500)
+			});
+		}else{
+			$(this).bind('click', function(e){
+				var widthScale = innerWidth / config.scWidth;
+				var heightScale = innerHeight / config.scHeight;
+				var scale = Math.min(widthScale,heightScale);
+
+				var z = scale;//Number($('#meta-container').css('transform').match(/.*?,/i)[0].slice(7, -1));
+				var x = (e.pageX-Math.floor(Number($('#meta-container').css('left').slice(0,-2))))/z;
+				var y = (e.pageY-Math.floor(Number($('#meta-container').css('top').slice(0,-2))))/z;
+
+				$('#meta-container').append('<div class=locatedPoint></div>')
+				$('.locatedPoint').css({position:'fixed','top':(y)-25,'left':(x)-25,display:'block','z-index':999})
+					.css({'-webkit-animation':'tapev 0.5s ease-out','animation':'tapev 0.5s ease-out'});
+				setTimeout(function(){
+					$('.locatedPoint').remove(':first');
+				},500)
+			});
+		}
+
+		setTimeout(function(){
+			$('.tap_box').fadeIn();
+		},500);
+
+
+	//タップイベント
+		var timer2;
+
+		if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+
+			$('#no').on('touchend',function(){
+				$('#no').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					clearInterval(dialogTimer);
+					callback('no');
+				}, 300);
+			})
+			$('#yes').one('touchend',function(){
+				$('#yes').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					clearInterval(dialogTimer);
+					callback('yes');
+				}, 300);
+			});
+		}else{
+			$('#no').on('click',function(){
+				$('#no').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					clearInterval(dialogTimer);
+					callback('no');
+				}, 300);
+			})
+			$('#yes').one('click',function(){
+				$('#yes').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					clearInterval(dialogTimer);
+					callback('yes');
+				}, 300);
+			});
+		}
+	});
+</script>
+</body>
+</html>

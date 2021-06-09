@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ghostpia</title>
+<link rel="stylesheet" href="plugin/html_overlay/html/css/owl.carousel.css"/>
+<link rel="stylesheet" href="plugin/html_overlay/html/css/owl.theme.css"/>
+<link rel="stylesheet" href="plugin/html_overlay/html/css/index_lowspec.css">
+<script type="text/javascript" src="plugin/html_overlay/html/js/owl.carousel.js"></script>
+</head>
+<body>
+
+<div id="dummy">
+	<div id="html_overlay">
+		<a href="#"><span id="twitter_bt"></span></a>
+		<div id="main-slider">
+			<div id="games">
+				<div class="cell-outer"><div id="information" class="cell"><p>クレジット</p></div></div>
+				<div class="cell-outer"><div id="startgame1" class="cell game"><p>第１話から</p></div></div>
+				<div class="cell-outer"><div id="startgame2" class="cell game"><p>第２話から</p></div></div>
+				<div class="cell-outer"><div id="startgame3" class="cell game"><p>第３話から</p></div></div>
+				<div class="cell-outer"><div id="startgame4" class="cell game"><p>第４話から</p></div></div>
+				<div class="cell-outer"><div id="loadgame" class="cell"><p>前回のつづきから</p></div></div>
+				<div class="cell-outer"><div id="qloadgame" class="cell"><p>しおりから</p></div></div>
+				<div class="cell-outer"><div id="chapters" class="cell"><p>チャプター</p></div></div>
+			</div>
+			<div id="infomenu"></div>
+			<div id="chapmenu"></div>
+		</div>
+		<div id="footer">
+			<div id="version"></div>
+		</div>
+	</div>
+</div>
+
+
+
+<script type="text/javascript">
+Overlay(function (callback, args) {
+
+	// iPod touch 5th はこれでもカルーセルがチラつく　マジで終わっている
+	// もしかしてだけど　translate　系がよくないのか
+	// 可能性があるのは .onhover の translateY
+
+	var nowStory = 0,
+			menuMode = "index",
+			audioPlayer = new Sound();
+			audioPlayer.setFile("noise_light");
+
+	$('#dummy').hide();
+
+	// $(this).on('touchmove', function(e){
+	// 	e.preventDefault();
+	// });
+
+//////////////////////
+//////////////////////
+
+	// owl.carousel をセッティングする
+	function setUpCarousel(selector){
+		$(selector).owlCarousel({
+			items:1,
+				itemsDesktop : false,
+				itemsDesktopSmall : false,
+				itemsTablet : false,
+				itemsTabletSmall : false,
+				itemsMobile : false,
+				pagination : false,
+
+				beforeMove : function(){
+					// audioPlayer.pause();
+					// audioPlayer.currentTime = 0;
+					audioPlayer.setTime(0);
+					audioPlayer.play();
+				}
+		});
+	}
+
+	var chapter = (function(){
+		// countの数を変えると、一度に表示されるチャプターの数が変わる
+		var page = 0,
+			count = 5,
+			chaplist = [],
+			list = [],
+			ii = 0;
+
+			for (var storyNum = 0; storyNum < sf.ghostpia_chapter.length; storyNum++) {
+
+				// chapterのopen数が0の場合はbreak（途中を抜かして0ということは絶対にありえないので）
+				if (sf.ghostpia_chapter[storyNum] == 0){
+					break;
+				}
+				for (var i = 0; i < sf.ghostpia_chapter[storyNum]; i++,ii++) {
+					if (ii == count){
+						chaplist.push(list);
+						list = [];
+						ii = 0
+					}
+					// console.log("storyNum",storyNum)
+					// console.log("i",i)
+					// console.log("ChapterList[storyNum].list[i].name",ChapterList[storyNum].list[i].name)
+
+					list[ii] = {"no":i+1, "story":storyNum+1, "title":ChapterList[storyNum].list[i].name};
+				};
+
+			};
+			chaplist.push(list);
+
+		return {
+			getChapNum : function(i){
+				for (var a = 0, result = 0; a < i; a++) {
+					result += Number(sf.ghostpia_chapter[a]);
+				};
+				return result;
+			},
+			getPage : function(){
+				return page;
+			},
+			getStoryNum : function(num){
+				return chaplist[page][num]['story']
+			},
+			getChapterNum : function(num){
+				return chaplist[page][num]['no']
+			},
+			make : function(){
+
+				for (var i = 0; i < chaplist[page].length; i++) {
+					appendText = '<div class="cell-outer"><div id="chapter'+chaplist[page][i]['story']+'_'+chaplist[page][i]['no']+'" class="cell" style="background-image:url(plugin/html_overlay/html/img/chapterSS/ss'+chaplist[page][i]['story']+'_'+chaplist[page][i]['no']+'.png)"><p>'+chaplist[page][i]['title']+'</p></div></div>';
+					chapOwl.data('owlCarousel').addItem(appendText, i);
+				}
+
+				if (chaplist[page+1]){
+					appendText = '<div class="cell-outer"><div id="nextChapList" class="cell" style="background-color:#000"><p>次へ</p></div></div>';
+					chapOwl.data('owlCarousel').addItem(appendText);
+				}
+				if (page > 0){
+					appendText = '<div class="cell-outer"><div id="prevChapList" class="cell" style="background-color:#000"><p>前へ</p></div></div>';
+					chapOwl.data('owlCarousel').addItem(appendText, 0);
+				}
+
+			},
+			remove : function(){
+				var removeItems = chapOwl.data('owlCarousel').maximumItem;
+				for (var i = 0; i <= removeItems; i++) {
+					chapOwl.data('owlCarousel').removeItem()
+				}
+			},
+			next : function(){
+				page++;
+			},
+			prev : function(){
+				page--;
+			},
+			setChapterTitle : function(index){
+				$('#chaptitle>p').text("第"+index+"話　"+ChapterList[index-1].title);
+			},
+			checkChapterNum : function(mode){
+				if (mode === 'create'){
+					if (chapter.getPage() == 0){
+						if (chapOwl.data('owlCarousel').currentItem == 0){
+							chapter.setChapterTitle(chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem));
+							nowStory = chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem);
+						}else if (chapOwl.data('owlCarousel').currentItem == 5){
+							chapter.setChapterTitle(chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem-1));
+							nowStory = chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem-1);
+						}
+					}else{
+						chapter.setChapterTitle(nowStory);
+					}
+				}else{
+					if (chapter.getPage() == 0){
+						if (chapOwl.data('owlCarousel').currentItem != 0 && chapOwl.data('owlCarousel').currentItem != 5){
+							if (chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem) != nowStory){
+								chapter.setChapterTitle(chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem));
+							}
+							nowStory = chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem);
+						}
+					}else{
+						if (chapOwl.data('owlCarousel').currentItem != 0 && chapOwl.data('owlCarousel').currentItem != 6){
+							if (chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem-1) != nowStory){
+								chapter.setChapterTitle(chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem-1));
+							}
+							nowStory = chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem-1);
+						}else if (chapOwl.data('owlCarousel').currentItem == 0){
+							chapter.setChapterTitle(chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem));
+							nowStory = chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem);
+						}else if (chapOwl.data('owlCarousel').currentItem == 6){
+							chapter.setChapterTitle(chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem-2));
+							nowStory = chapter.getStoryNum(chapOwl.data('owlCarousel').currentItem-2);
+						}
+					}
+				}
+			},
+			changeChapterNum : function(direction){
+				if (direction == 'prev'){
+					if (chapOwl.data('owlCarousel').currentItem > 0){
+						chapOwl.data('owlCarousel').goTo(0);
+					}
+				}else if (direction == 'next'){
+					if (chapOwl.data('owlCarousel').currentItem <= chapOwl.data('owlCarousel').maximumItem){
+						chapOwl.data('owlCarousel').goTo(chapOwl.data('owlCarousel').maximumItem);
+					}
+				}
+			},
+			changeChapterTitle : function(){
+				chapter.checkChapterNum();
+				// チャプターで次の章がオープンの時は一気に飛べるようにする
+				if (chapOwl.data('owlCarousel').prevItem == chapOwl.data('owlCarousel').maximumItem || chapOwl.data('owlCarousel').currentItem < chapOwl.data('owlCarousel').maximumItem){
+					$('#nextChap').fadeIn(200);
+				}else if (chapOwl.data('owlCarousel').currentItem == chapOwl.data('owlCarousel').maximumItem){
+					$('#nextChap').fadeOut(200);
+				}
+				if (chapOwl.data('owlCarousel').prevItem == 0 && chapOwl.data('owlCarousel').currentItem > 0){
+					$('#prevChap').fadeIn(200);
+				}else if (chapOwl.data('owlCarousel').prevItem != 0 && chapOwl.data('owlCarousel').currentItem == 0){
+					$('#prevChap').fadeOut(200);
+				}
+			},
+			showChapterMenu : function(targetId,action){
+				setTimeout(function(){
+					$('#main-slider').fadeOut('300', function() {
+						setTimeout(function(){
+							$(targetId).removeClass('pushSS_animation_link');
+
+							$('#chaptitle').remove();
+							chapter.remove();
+
+							if (action === 'next'){
+								chapter.next();
+							}else if (action === 'prev'){
+								chapter.prev();
+							}
+							chapter.make();
+
+							if (action === 'prev'){
+								chapOwl.data('owlCarousel').jumpTo(chapOwl.data('owlCarousel').maximumItem);
+							}
+
+							$('#main-slider').fadeIn('300');
+							$('#prevChap').on(onEventName, function(event) {
+								event.preventDefault();
+								chapter.changeChapterNum('prev');
+							})
+							if (chapOwl.data('owlCarousel').maximumItem > 0){
+								if (action === 'next'){
+									$('#nextChap').on(onEventName, function(event) {
+										event.preventDefault();
+										chapter.changeChapterNum('next');
+									}).fadeIn(300);
+								}else{
+									$('#nextChap').on(onEventName, function(event) {
+										event.preventDefault();
+										chapter.changeChapterNum('next');
+									});
+								}
+							}
+
+							$('#chapmenu').append('<div id="chaptitle"><p></p></div>').show();
+							chapter.checkChapterNum('create');
+
+							setupCallback('#chapmenu .owl-wrapper');
+							$('#chapmenu .owl-item').addClass('onhover');
+
+						}, 400);
+					});
+				}, 500);
+			}
+		}
+	})();
+
+
+	// infoやchapterから元の画面に戻るボタンのオンオフ
+	function backToTopBtn(opt,removeId){
+		if (opt == 'append'){
+			$('#html_overlay').append('<div id="backtotop"></div>').hide().fadeIn(300);
+			$('#backtotop').on(onEventName, function(){
+
+				touchContent("#backtotop",false);
+				removeCallback('#'+removeId+' .owl-wrapper');
+
+				setTimeout(function(){
+					if (removeId == 'chapmenu'){
+						$('#prevChap').fadeOut(300);
+						$('#nextChap').fadeOut(300);
+					}
+					$('#main-slider').fadeOut('300', function() {
+						setTimeout(function(){
+							$('#'+removeId).remove();
+							$('#main-slider').css({'width':'908.8px','height':'640px','mask-image':'url("plugin/html_overlay/html/css/lowspec_mask.png")','-webkit-mask-image':'url("plugin/html_overlay/html/css/lowspec_mask.png")'});
+							// setUpCarousel('#infomenu');
+							if (removeId == 'infomenu'){
+								$('#information').removeClass('pushSS_animation_link');
+							}else if (removeId == 'chapmenu'){
+								$('#chapters').removeClass('pushSS_animation_link');
+								$('#prevChap').remove();
+								$('#nextChap').remove();
+								chapOwl = null;
+							}
+
+							$("#backtotop").removeClass('pushSS_animation');
+							$('#main-slider').append('<div id="'+removeId+'"></div>');
+							$('#games').show();
+							setupCallback('#games .owl-wrapper');
+
+							$('#main-slider').fadeIn('300');
+							$('#backtotop').remove();
+						}, 400);
+					});
+				}, 500);
+				targetId = '';
+				menuMode = "index";
+			});
+		}else if (opt == 'remove'){
+			$('#backtotop').fadeOut(300).remove();
+		}
+	}
+
+	// タッチされたDOM要素に「タッチされました」アニメーションをさせる
+	// hideIdで同時に他の要素を非表示にしたりできる
+	// animation は何も指定しなければ標準のアニメーションに
+	function touchContent(targetId,hideId,animation){
+		var animeName = animation || 'pushSS_animation';
+		$(targetId).addClass(animeName);
+		if (animeName === 'pushSS_animation'){
+			$(targetId).animate({opacity: 0}, 500);
+		}
+		if (hideId !== false) {
+			$(hideId).css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'}).css('opacity', 0);
+		}
+	}
+
+	// タッチイベントを外す
+	function removeCallback(dom) {
+		if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+			$(dom).off("touchend");
+			$(dom).off("touchstart");
+			$(dom).off("touchmove");
+		}else{
+			$(dom).off("mouseup");
+			$(dom).off("mousedown");
+			$(dom).off("mousemove");
+		}
+	}
+
+	// タッチイベントを準備
+	function setupCallback(dom) {
+		var action,targetId,appendText;
+
+		// タッチorクリックイベントの設定
+		if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+			var onEventName = 'touchend',touchcancel;
+
+			$(dom).on("touchstart", function(e){
+				touchcancel = false;
+			});
+			$(dom).on("touchmove", function(){
+				touchcancel = true;
+			});
+		}else{
+			var onEventName = 'mouseup',touchcancel;
+
+			$(dom).on("mousedown", function(e){
+				touchcancel = false;
+			});
+			$(dom).on("mousemove", function(){
+				touchcancel = true;
+			});
+		}
+
+		// タッチされた要素がどれかを調査する
+		$(dom).on(onEventName, function(e){
+			if (!touchcancel){
+				switch (e.target.innerText){
+					case '第１話から':
+						targetId = menuMode = '#startgame1';
+						menuMode = targetId;
+						action = 'start';
+						break;
+					case '第２話から':
+						targetId = menuMode = '#startgame2';
+						action = 'start2';
+						break;
+					case '第３話から':
+						targetId = menuMode = '#startgame3';
+						action = 'start3';
+						break;
+					case '第４話から':
+						targetId = menuMode = '#startgame4';
+						action = 'start4';
+						break;
+					case '前回のつづきから':
+						targetId = menuMode = '#loadgame';
+						action = 'load';
+						break;
+					case 'しおりから':
+						targetId = menuMode = '#qloadgame';
+						action = 'qload';
+						break;
+					case 'クレジット':
+						targetId = menuMode = '#information';
+						action = false;
+						break;
+					case 'チャプター':
+						targetId = menuMode = '#chapters';
+						action = false;
+						break;
+					case 'iTunes':
+						targetId = "#goto_itunes";
+						action = false;
+						break;
+					case 'フォームへ':
+						targetId = "#goto_form";
+						action = false;
+						break;
+					default:
+						if (menuMode == '#chapters'){
+							if (e.target.parentElement.id == 'nextChapList' || e.target.parentElement.id == 'prevChapList'){
+								targetId = '#'+e.target.parentElement.id;
+								action = false;
+							}else{
+								if (e.target.parentElement.id.indexOf('chapter') != -1){
+									// console.log(e.target.parentElement.id);
+									targetId = '#'+e.target.parentElement.id;
+									action = 'chap';
+									var result = targetId.match(/chapter(\d+)\_(\d+)/i);
+									tf.tmp.chapnum = ChapterList[result[1]-1].list[result[2]-1].label;
+									tf.tmp.chapfile = ChapterList[result[1]-1].list[result[2]-1].file
+									// console.log("tf.tmp.chapnum", tf.tmp.chapnum)
+									// console.log("tf.tmp.chapfile", tf.tmp.chapfile)
+								}else{
+									targetId = '';
+									action = false;
+								}
+							}
+						}else{
+							targetId = '';
+							action = false;
+						}
+				}
+
+				// action = true ならcallbackを返してhtmlOverlay終了
+				// action = false ならhtml内で画面遷移
+				if (action !== false){
+					touchContent(targetId,'#dummy');
+					targetId = null;
+					setTimeout(function(){
+						callback(action);
+					}, 2000);
+				}else{
+
+					// information page
+					if (targetId === '#information'){
+
+						// 表示するメニューの中身を用意　視認性が悪すぎる
+						$('#infomenu').hide();
+						$('#chapmenu').hide();
+						appendText = '<div id="credit" class="cell"><div class="allowL"></div></div><div id="sounds" class="cell"><p>ghostpiaの劇伴楽曲を総収録したサウンドトラック<br>&quot;terminus -The Collected Pieces Of ghostpia-&quot;<br>iTunesにて好評配信中！</p><img src="plugin/html_overlay/html/img/terminus_jacket.png"><div id="goto_itunes"><p>iTunes</p></div><div class="allowL"></div><div class="allowR"></div></div><div id="form" class="cell"><p>ご意見・ご感想・不具合報告フォーム</p><p class="small">ghostpiaの制作を継続していくにあたり、読者のみなさまからのご意見を募集しております。<br>些細なことでも結構です。作品へのご意見・ご感想・不具合報告等ありましたら、<br>お気軽にフォームへ投稿してください。今後の制作に最大限活用させて頂きます。<br>よりよい作品提供を行うために、ご協力よろしくお願いいたします。</p><div id="goto_form"><p>フォームへ</p></div><div class="allowR"></div></div>';
+						$('#infomenu').append(appendText).hide();
+						$('#credit').css('background-image','url("plugin/html_overlay/html/img/infomenu_credit.png")');
+
+						touchContent(targetId,false,'pushSS_animation_link');
+						removeCallback('#games .owl-wrapper');
+
+						setTimeout(function(){
+							$('#main-slider').fadeOut('300', function() {
+								setTimeout(function(){
+									$(targetId).removeClass('pushSS_animation_link');
+									// 先祖要素のサイズを変えて、全画面表示対応にする
+									$('#main-slider').css({'width':'1136px','height':'640px','mask-image':'url("plugin/html_overlay/html/css/lowspec_mask_1136.png")','-webkit-mask-image':'url("plugin/html_overlay/html/css/lowspec_mask_1136.png")'});
+									setUpCarousel('#infomenu');
+									$('#games').hide();
+									$('#infomenu').show();
+									setupCallback('#infomenu .owl-wrapper');
+
+									$('#main-slider').fadeIn('300');
+									backToTopBtn('append','infomenu');
+								}, 400);
+							});
+						}, 500);
+						targetId = '';
+
+					// chapter page
+					}else if (targetId === '#chapters'){
+
+						chaptitle = ChapterList[0].title;
+
+						// 表示するメニューの中身を用意　視認性が悪すぎる
+						$('#chapmenu').hide();
+						$('#infomenu').hide();
+
+						if (sf.ghostpia_story == 0){
+							// 何も読んでない時
+							appendText = '<div id="noopen"><p>お話を読み進めるとChapterから読むことができるようになります</p></div>'
+							$('#chapmenu').append(appendText).hide();
+							touchContent(targetId,false,'pushSS_animation_link');
+							removeCallback('#games .owl-wrapper');
+
+							setTimeout(function(){
+								$('#main-slider').fadeOut('300', function() {
+									setTimeout(function(){
+										$(targetId).removeClass('pushSS_animation_link');
+										// 先祖要素のサイズを変えて、全画面表示対応にする
+										$('#chapmenu').css({'width':'1136px'});
+										$('#main-slider').css({'width':'1136px','height':'640px','mask-image':'url("plugin/html_overlay/html/css/lowspec_mask_1136.png")','-webkit-mask-image':'url("plugin/html_overlay/html/css/lowspec_mask_1136.png")'});
+
+										$('#games').hide();
+										$('#chapmenu').show();
+
+										$('#main-slider').fadeIn('300');
+										backToTopBtn('append','chapmenu');
+									}, 400);
+								});
+							}, 500);
+
+						}else{
+
+							touchContent(targetId,false,'pushSS_animation_link');
+							removeCallback('#games .owl-wrapper');
+
+							setTimeout(function(){
+								$('#main-slider').fadeOut('300', function() {
+									setTimeout(function(){
+										$(targetId).removeClass('pushSS_animation_link');
+										// 先祖要素のサイズを変えて、全画面表示対応にする
+										$('#main-slider').css({'width':'908.8px','height':'640px','mask-image':'url("plugin/html_overlay/html/css/lowspec_mask.png")','-webkit-mask-image':'url("plugin/html_overlay/html/css/lowspec_mask.png")'});
+
+
+										chapOwl = $('#chapmenu');
+										// カルーセル作成
+										chapOwl.owlCarousel({
+											items:1,
+												itemsDesktop : false,
+												itemsDesktopSmall : false,
+												itemsTablet : false,
+												itemsTabletSmall : false,
+												itemsMobile : false,
+												pagination : false,
+
+												beforeMove : function(){
+													audioPlayer.pause();
+													audioPlayer.setTime(0);
+													audioPlayer.play();
+												},
+											afterMove : chapter.changeChapterTitle
+										});
+
+										chapter.make();
+
+										$('#games').hide();
+										$('#chapmenu').append('<div id="chaptitle"><p></p></div>').show();
+										chapter.checkChapterNum('create');
+										$('#html_overlay').append('<div id="prevChap" style="display:none;"></div><div id="nextChap" style="display:none;"></div>');
+										setupCallback('#chapmenu .owl-wrapper');
+
+										$('#main-slider').fadeIn('300');
+										backToTopBtn('append','chapmenu');
+										$('#prevChap').on(onEventName, function(event) {
+											event.preventDefault();
+											chapter.changeChapterNum('prev');
+										})
+										if (chapOwl.data('owlCarousel').maximumItem > 0){
+											$('#nextChap').on(onEventName, function(event) {
+												event.preventDefault();
+												chapter.changeChapterNum('next');
+											}).fadeIn(300);
+										}
+										$('#chapmenu .owl-item').addClass('onhover');
+										// changeChapterTitle();
+									}, 400);
+								});
+							}, 500);
+						}
+						targetId = '';
+
+
+					}else if (targetId === '#nextChapList'){
+
+						touchContent(targetId,false,'pushSS_animation_link');
+						$('#nextChap, #prevChap').fadeOut('300');
+
+						chapter.showChapterMenu(targetId,'next');
+						targetId = '';
+
+					}else if (targetId === '#prevChapList'){
+
+						touchContent(targetId,false,'pushSS_animation_link');
+						$('#nextChap, #prevChap').fadeOut('300');
+
+						chapter.showChapterMenu(targetId,'prev');
+						targetId = '';
+
+					// itunes へ
+					}else if (targetId === '#goto_itunes'){
+
+						touchContent(targetId,false,'pushSS_animation_link');
+						setTimeout(function(){
+							$(targetId).removeClass('pushSS_animation_link');
+							if (ua.os == 'ios' || ua.os == 'android'){
+								document.location.href=tf.tmp.itunesurl;
+							}else{
+								window.open(tf.tmp.itunesurl,"_blank");
+							}
+							targetId = '';
+						}, 1000);
+
+					// form へ
+					}else if (targetId === '#goto_form'){
+
+						touchContent(targetId,false,'pushSS_animation_link');
+						setTimeout(function(){
+							$(targetId).removeClass('pushSS_animation_link');
+							if (ua.os == 'ios' || ua.os == 'android'){
+								document.location.href='http://ghostpia.xyz/form/';
+							}else{
+								window.open("http://ghostpia.xyz/form/","_blank");
+							}
+							targetId = '';
+						}, 1000);
+
+					}
+				}
+			}
+		});
+	}
+
+//////////////////////
+//////////////////////
+//波紋を表示する
+
+	if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+		var onEventName = 'touchend';
+	}else{
+		var onEventName = 'click';
+	}
+
+	$(this).bind(onEventName, function(e) {
+		var widthScale = innerWidth / config.scWidth,
+			heightScale = innerHeight / config.scHeight,
+			scale = Math.min(widthScale,heightScale),
+			z = scale, x, y;
+
+		if (onEventName == 'touchend'){
+				event.preventDefault();	// ページが動いたり、反応を止める（A タグなど）
+				x = (event.changedTouches[0].pageX-Math.floor(Number($('#html_overlay').parents('.overlay').css('left').slice(0,-2))))/z; // X 座標の位置
+				y = (event.changedTouches[0].pageY-Math.floor(Number($('#html_overlay').parents('.overlay').css('top').slice(0,-2))))/z; // Y 座標の位置
+		}else{
+			x = (e.pageX-Math.floor(Number($('#html_overlay').parents('.overlay').css('left').slice(0,-2))))/z;
+			y = (e.pageY-Math.floor(Number($('#html_overlay').parents('.overlay').css('top').slice(0,-2))))/z;
+		}
+		$('#html_overlay').append('<div class=locatedPoint></div>')
+		$('.locatedPoint').css({position:'fixed','top':(y)-25,'left':(x)-25,display:'block','z-index':999})
+			.css({'-webkit-animation':'tapev 0.5s ease-out','animation':'tapev 0.5s ease-out'});
+		setTimeout(function(){
+			$('.locatedPoint').remove(':first');
+		},500)
+	});
+
+//////////////////////
+//////////////////////
+//つぶやくボタンの設定
+
+	var timer;
+
+	$('#html_overlay').children('a').on(onEventName,function(){
+		$('#twitter_bt').addClass('pushSS_animation_link');
+		clearTimeout(timer);
+		timer = setTimeout(function(){
+			if (f.ghostpia.constant.getValue('novelsphere')){
+
+				if (Number(sf.ghostpia_story) <= 1){
+					if (Number(sf.ghostpia_finish_story) != 0){
+						tf.tmp.twitext='読了！ ghostpia 第'+sf.ghostpia_story+'話「'+ChapterList[sf.ghostpia_story-1].title+'」'+tf.tmp.twiurl_ns+' - 超水道';
+					}else{
+						tf.tmp.twitext='オススメ！ ghostpia 第'+sf.ghostpia_story+'話「'+ChapterList[sf.ghostpia_story-1].title+'」'+tf.tmp.twiurl_ns+' - 超水道';
+					}
+				}
+			}else{
+
+				// 読了の時
+				if (MenuSetting.isFinished){
+					tf.tmp.twitext='読了！ ghostpia 第'+sf.ghostpia_finish_story+'話「'+ChapterList[sf.ghostpia_finish_story-1].title+'」 - 超水道';
+				}else{
+					tf.tmp.twitext='オススメ！ ghostpia 第'+(sf.ghostpia_finish_story+1)+'話「'+ChapterList[sf.ghostpia_finish_story].title+'」 - 超水道';
+				}
+			}
+			tf.tmp.twilink='https://twitter.com/intent/tweet?text='+encodeURI(tf.tmp.twitext)+'&hashtags=ghostpia&url='+tf.tmp.twiurl;
+			$('#twitter_bt').removeClass('pushSS_animation_link');
+
+			if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+				document.location.href=tf.tmp.twilink;
+			}else{
+				window.open(tf.tmp.twilink,'_blank');
+			}
+		}, 1000);
+		return false;
+	});
+
+//////////////////////
+//////////////////////
+// 起動時の設定
+
+	// 解放済みの章は表示する
+	for (var i = 0; i < MenuSetting.storyOpened.length; i++) {
+		// i章が解放済みかどうか
+		if (MenuSetting.storyOpened[i] || sf.ghostpia_finish_story == i) {
+			$('#startgame'+(i+1)).css('background-image','url("plugin/html_overlay/html/img/startgame'+(i+1)+'.png")');
+		} else {
+			$('#startgame'+(i+1)).parent().remove();
+		}
+	}
+
+	// オートセーブがある場合は「前回の続きから」を表示
+	if (MenuSetting.load){
+		$('#loadgame').css('background-image','url('+ev.save.snapshot[1]+')');
+	}else{
+		$('#loadgame').parent().remove();
+	}
+	// セーブされている場合は「しおりから」を表示
+	if (MenuSetting.qload){
+		$('#qloadgame').css('background-image','url('+ev.save.snapshot[0]+')');
+	}else{
+		$('#qloadgame').parent().remove();
+	}
+
+	//version表示
+	$('#version').html("Version: "+tf.tmp.version);
+
+
+	$(document).ready(function() {
+		//carousel setting
+		setUpCarousel("#games");
+		var owl = $(".owl-carousel").data('owlCarousel');
+
+		// 表示されているstartgameのボタンの数
+		var opendContents = $('.game').length;
+		var jumpToStoryNum = 1;
+		// どのボタンにフォーカスさせるか
+		for (var i = sf.ghostpia_chapter.length; i > 1; i--) {
+
+			// i章をクリアしている場合 → i+1
+			if (sf.ghostpia_finish_story == i && sf.ghostpia_chapter[i] < 1 && sf.ghostpia_chapter[i-1] == ChapterList[i-1].list.length){
+				// console.log('M A')
+
+				// i+1がある？
+				jumpToStoryNum = i+1;
+				break;
+
+			// i章をクリアしていない場合
+			} else {
+
+				// はじめて i章 をプレイする時
+				if (i == MenuSetting.firstPlay) {
+					// console.log('M B')
+
+					jumpToStoryNum = i;
+					break;
+				}
+			}
+		}
+		// いずれもマッチしなかったら…
+		if (jumpToStoryNum == 1) {
+			// しおり：ある、オートセーブ：ある　＞　オートセーブ
+			if (MenuSetting.qload && MenuSetting.load){
+				// console.log('M C')
+				jumpToStoryNum = opendContents+1;
+			// しおり：ある、オートセーブ：ない　＞　しおり
+			}else if (MenuSetting.qload && !MenuSetting.load){
+				// console.log('M D')
+				jumpToStoryNum = opendContents+1;
+			// しおり：ない、オートセーブ：ある　＞　オートセーブ
+			}else if (!MenuSetting.qload && MenuSetting.load){
+				// console.log('M E')
+				jumpToStoryNum = opendContents+1;
+			// 一番最初のプレイ
+			}else if (!MenuSetting.qload && !MenuSetting.load){
+				// console.log('M F')
+				jumpToStoryNum = 1;
+			}
+		}
+
+		owl.jumpTo(jumpToStoryNum);
+
+		setupCallback('#games .owl-wrapper');
+
+		$('#dummy').show('300', function() {
+			setTimeout(function(){
+				$('.owl-item').addClass('onhover');
+			},300);
+		});
+
+	});
+
+	/*	debugger; */
+	});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ghostpia</title>
+
+<style type="text/css">
+	#meta-meta {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0;
+		width: 1136px;
+		height: 640px;
+		background-color: rgba(0,0,0,0.4);
+	}
+	#meta-container {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 1136px;
+		height: 640px;
+	}
+
+	#nextinfo-container {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0px;
+		left: 0;
+		width: 1136px;
+		height: 520px;
+		opacity: 0;
+		margin: 60px 0;
+		background-repeat: no-repeat;
+		background-position: center top;
+		background-image:url("");
+	}
+
+	#current_title {
+	  text-shadow: rgba(0, 0, 0, 0.6) 1px 1px 10px, rgba(0, 0, 0, 0.6) -1px 1px 10px, rgba(0, 0, 0, 0.6) 1px -1px 10px, rgba(0, 0, 0, 0.6) -1px -1px 10px;
+    font-family: "logotype";
+    color: white;
+    font-size: 25px;
+    text-align: left;
+    line-height: 100px;
+    padding: 0 0 0 60px;
+		position: relative;
+		top:450px;
+		left:0px;
+		height: 100px;
+		background-repeat: no-repeat;
+		background-position-x: -200px;
+		background-position-y: center;
+		background-image: url("");
+	}
+
+	#next_title {
+		position: relative;
+		top:0px;
+		left:0px;
+		width: 1136px;
+		height: 100px;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-image: url("");
+	}
+
+	#buttons {
+		position: relative;
+	}
+
+	#twitter {
+		position: absolute;
+		left:830px;
+		top:20px;
+	}
+
+	#enquete {
+		position: absolute;
+		left:454px;
+		top:220px;
+	}
+
+	#totop {
+		position: absolute;
+		left:830px;
+		top:160px;
+	}
+
+	#soundtrack_text {
+    position: absolute;
+    left: 348px;
+    top: 400px;
+    width: 440px;
+    height: 48px;
+	}
+
+/* iOS版の時はAmazonMP3は出さないのでこっちだけ */
+	#soundtrack_iTunes {
+    position: absolute;
+    left: 830px;
+    top: 410px;
+    /*width: 180px;*/
+    /*height: 60px;*/
+	}
+
+/*	#soundtrack_iTunes {
+		position: absolute;
+		left:358px;
+		top:460px;
+		width: 180px;
+		height: 60px;
+	}*/
+
+/*	#soundtrack_AmazonMP3 {
+		position: absolute;
+		left:588px;
+		top:460px;
+		width: 180px;
+		height: 60px;
+	}*/
+
+	.img_radius {
+		width: 228px;
+		height: 100px;
+		box-shadow: 0px 10px 10px rgba(0,0,0,0.4);
+		background: center center no-repeat;
+		background-size: cover;
+		position: relative;
+		border: solid 1px #fff;
+		border-radius: 10px;
+		display: block;
+		margin:0px;
+		-webkit-transition: 0.5s ease;
+		   -moz-transition: 0.5s ease;
+		    -ms-transition: 0.5s ease;
+		     -o-transition: 0.5s ease;
+		        transition: 0.5s ease;
+	}
+	.img_radius:hover{
+		-webkit-transform: translateY(5px);
+		   -moz-transform: translateY(5px);
+		    -ms-transform: translateY(5px);
+		     -o-transform: translateY(5px);
+		        transform: translateY(5px);
+	}
+
+	p.button {
+    font-family: "logotype";
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    line-height: 100px;
+    margin: 0;
+	}
+	#soundtrack_iTunes > p.button {
+    font-family: "logotype";
+    font-size: 18px;
+    color: white;
+    position: relative;
+    text-align: center;
+    line-height: 25px;
+    top: 20px;
+    padding: 5px 0 5px 0;
+	}
+
+@-webkit-keyframes pushSS {
+	0% { opacity: 1; -webkit-transform: translateY(5px);}
+	10% { -webkit-transform: translateY(10px); }
+	50% { opacity: 0; -webkit-transform: translateY(-20px);}
+	100% { opacity: 0;}
+}
+@keyframes pushSS {
+	0% { opacity: 1; transform: translateY(5px);}
+	10% { transform: translateY(10px); }
+	50% {opacity: 0; transform: translateY(-20px);}
+	100& {opacity: 0;}
+}
+@-webkit-keyframes pushSS_link {
+	0% { opacity: 1; -webkit-transform: translateY(5px);}
+	10% { -webkit-transform: translateY(10px); }
+	50% { opacity: 0.5; -webkit-transform: translateY(0px);}
+	100% { opacity: 1;}
+}
+@keyframes pushSS_link {
+	0% { opacity: 1; transform: translateY(5px);}
+	10% { transform: translateY(10px); }
+	50% {opacity: 0.5; transform: translateY(0px);}
+	100& {opacity: 1;}
+}
+.pushSS_animation {
+	animation-iteration-count:1;
+	-webkit-animation: pushSS 2s alternate ease-in-out;
+	animation: pushSS 2s alternate ease-in-out;
+}
+.pushSS_animation_link {
+	animation-iteration-count:1;
+	-webkit-animation: pushSS_link 2s alternate ease-in-out;
+	animation: pushSS_link 2s alternate ease-in-out;
+}
+
+
+@-webkit-keyframes tapev {
+	0% { opacity: 0; border-radius: 25px; -webkit-transform: scale(1);}
+	50% { opacity: 1; }
+	100% {opacity: 0; border-radius: 50px; -webkit-transform: scale(2);}
+}
+@keyframes tapev {
+	0% { opacity: 0; border-radius: 50px; transform: scale(1);}
+	50% { opacity: 1; }
+	100% {opacity: 0; border-radius: 25px; transform: scale(2);}
+}
+
+#locatedPoint {
+	font-size:24pt;
+	display: none;
+	color:white;
+}
+.locatedPoint {
+	font-size:24pt;
+	display: none;
+	color:white;
+	width:50px;
+	height:50px;
+	border-radius: 25px;
+	border: solid 2px #fff;
+}
+
+</style>
+</head>
+<body>
+<div id="meta-meta">
+<div id="meta-container">
+	<div id="nextinfo-container">
+		<div id="current_title">第4話「あの子といっしょでひとりの日」</div>
+		<!-- <div id="next_title"></div> -->
+		<div id="twitter" class="img_radius">
+			<p class="button">読了ツイートをする！</p>
+		</div>
+<!-- 		<div id="enquete" class="img_radius"></div> -->
+		<div id="totop" class="img_radius">
+			<p class="button">タイトルに戻る</p>
+		</div>
+		<!-- <div id="soundtrack_text"></div> -->
+		<div id="soundtrack_iTunes" class="img_radius">
+			<p class="button">サウンドトラックを<br>iTunesでダウンロード</p>
+		</div>
+		<!-- <div id="soundtrack_AmazonMP3" class="img_radius"></div>		 -->
+	</div>
+</div>
+</div>
+
+<script>
+	Overlay(function (callback, args) {
+
+//		$(window).resize(onWindowResized);
+
+		setTimeout(function(){
+			// ダイアログの位置を計算し初期化
+			var widthScale = innerWidth / config.scWidth;
+			var heightScale = innerHeight / config.scHeight;
+			var scale = Math.min(widthScale,heightScale);
+			var left = (innerWidth - config.scWidth * scale) / 2;
+			var top = (innerHeight - config.scHeight * scale) / 2;
+			$('#meta-meta').css('opacity', 1);
+			$('#meta-container')
+				.css('transformOrigin','0% 0%')
+				.css('transform','scale(' + 1 + ')')
+				.css('left', 0 + 'px')
+				.css('top', 0 + 'px');
+			// CSS トランジションを使ってダイアログを表示
+			$('#nextinfo-container')
+				.css('opacity', 1);
+
+		//		.css('backgroundImage', 'url("data/image/bg/rothko.png")')
+
+		}, 100);
+
+		var dialogTimer = null;
+		function onWindowResized() {
+			clearTimeout(dialogTimer);
+			dialogTimer = setTimeout(function(){
+				var widthScale = innerWidth / config.scWidth;
+				var heightScale = innerHeight / config.scHeight;
+				var scale = Math.min(widthScale,heightScale);
+				var left = (innerWidth - config.scWidth * scale) / 2;
+				var top = (innerHeight - config.scHeight * scale) / 2;
+
+				$('#meta-container')
+					.css('transformOrigin','0% 0%')
+					.css('transform','scale('+1+')')
+					.css('left', 0 + 'px')
+					.css('top', 0 + 'px');
+			}, 300);
+		}
+
+		$(window).on('resize', onWindowResized);
+
+		//ここで現在のstory番号を取得、今回のタイトルと次回のタイトルをそれぞれ表示する
+		// $('#current_title').css('background-image','url(plugin/html_overlay/html/img/chaptermenu_story_'+f.ghostpia_reading_story+'.png)');
+		// var nextStoryNum = f.ghostpia_reading_story+1;
+		// $('#next_title').css('background-image','url(plugin/html_overlay/html/img/next_story_'+nextStoryNum+'.png)');
+		// $('#soundtrack_text').css('background','url(plugin/html_overlay/html/img/soundtrack_text.png) no-repeat center');
+/*
+		if (ghostpia.constant.getNovelSphere()){
+			$('#next_title').css('background-image','url(plugin/html_overlay/html/img/ns_next_story_2.png)');
+		}else{
+			$('#next_title').css('background-image','url(plugin/html_overlay/html/img/next_story_2.png)');
+		}
+*/
+
+		$('#twitter').css('background','rgba(100,200,255,0.2)');
+		// $('#twitter').css('background','url(plugin/html_overlay/html/img/aftertweet.png) no-repeat center rgba(0,0,0,0.4)');
+		// $('#enquete').css('background','url(plugin/html_overlay/html/img/enquete.png) no-repeat center rgba(0,0,0,0.4)');
+		$('#totop').css('background','rgba(100,200,255,0.2)');
+		// $('#totop').css('background','url(plugin/html_overlay/html/img/totop.png) no-repeat center rgba(0,0,0,0.4)');
+		$('#soundtrack_iTunes').css('background','rgba(100,200,255,0.2)');
+		// $('#soundtrack_iTunes').css('background','url(plugin/html_overlay/html/img/soundtrack_iTunes.png) no-repeat center rgba(0,0,0,0.4)');
+		$('#soundtrack_AmazonMP3').css('background','url(plugin/html_overlay/html/img/soundtrack_AmazonMP3.png) no-repeat center rgba(0,0,0,0.4)');
+
+		var timer2;
+		var timer3;
+
+	if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+
+		$('#totop').on('touchend', function(){
+			$('#totop').addClass('pushSS_animation');
+			$('#totop').off().fadeOut(500);
+			$('#meta-meta').css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'});
+			$('#meta-meta').css('opacity', 0);
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				callback('backtotop');
+			}, 2000);
+		});
+
+		$('#twitter').on('touchend',function(){
+			$('#twitter').addClass('pushSS_animation_link');
+			clearTimeout(timer3);
+			timer3 = setTimeout(function(){
+				switch (Number(sf.ghostpia_finish_story)){
+					case 2:
+						if (f.ghostpia.constant.getValue('novelsphere')){
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」'+tf.tmp.twiurl_ns+' - 超水道';
+						}else{
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」 - 超水道 ';
+						}
+						break;
+					case 1:
+						if (f.ghostpia.constant.getValue('novelsphere')){
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」'+tf.tmp.twiurl_ns+' - 超水道';
+						}else{
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」 - 超水道 ';
+						}
+						break;
+					default:
+						if (f.ghostpia.constant.getValue('novelsphere')){
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」'+tf.tmp.twiurl_ns+' - 超水道';
+						}else{
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」 - 超水道 ';
+						}
+						break;
+				}
+				if (f.ghostpia.constant.getValue('novelsphere')){
+					tf.tmp.twilink='https://twitter.com/intent/tweet?text='+encodeURI(tf.tmp.twitext)+'&hashtags=ghostpia&url='+tf.tmp.twiurl;
+				}else{
+					tf.tmp.twilink='https://twitter.com/intent/tweet?text='+encodeURI(tf.tmp.twitext)+'&hashtags=ghostpia&url='+tf.tmp.twiurl;
+				}
+				$('#twitter_bt').removeClass('pushSS_animation_link');
+				document.location.href=tf.tmp.twilink;
+			}, 1000);
+		});
+
+		$('#enquete').on('touchend',function(){
+			$('#enquete').addClass('pushSS_animation_link');
+			clearTimeout(timer3);
+			timer3 = setTimeout(function(){
+				$('#enquete').removeClass('pushSS_animation_link');
+				document.location.href='http://ghostpia.xyz/form/';
+			}, 1000);
+		});
+
+		$('#soundtrack_iTunes').on('touchend',function(){
+			$('#soundtrack_iTunes').addClass('pushSS_animation_link');
+			clearTimeout(timer3);
+			timer3 = setTimeout(function(){
+				$('#soundtrack_iTunes').removeClass('pushSS_animation_link');
+				document.location.href=tf.tmp.itunesurl;
+			}, 1000);
+		});
+
+		// $('#soundtrack_AmazonMP3').on('touchend',function(){
+		// 	$('#soundtrack_AmazonMP3').addClass('pushSS_animation_link');
+		// 	clearTimeout(timer3);
+		// 	timer3 = setTimeout(function(){
+		// 		$('#soundtrack_AmazonMP3').removeClass('pushSS_animation_link');
+		// 		document.location.href='http://www.amazon.co.jp/gp/product/B00OXTIMA4/ref=dm_ws_sp_ps_dp';
+		// 	}, 1000);
+		// });
+
+	}else{
+
+		$('#totop').on('click', function(){
+			$('#totop').addClass('pushSS_animation');
+			$('#totop').off().fadeOut(500);
+			$('#meta-meta').css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'});
+			$('#meta-meta').css('opacity', 0);
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				callback('backtotop');
+			}, 2000);
+		});
+
+		$('#twitter').on('click',function(){
+			$('#twitter').addClass('pushSS_animation_link');
+			clearTimeout(timer3);
+			timer3 = setTimeout(function(){
+				switch (Number(sf.ghostpia_finish_story)){
+					case 2:
+						if (f.ghostpia.constant.getValue('novelsphere')){
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」'+tf.tmp.twiurl_ns+' - 超水道';
+						}else{
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」 - 超水道 ';
+						}
+						break;
+					case 1:
+						if (f.ghostpia.constant.getValue('novelsphere')){
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」'+tf.tmp.twiurl_ns+' - 超水道';
+						}else{
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」 - 超水道 ';
+						}
+						break;
+					default:
+						if (f.ghostpia.constant.getValue('novelsphere')){
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」'+tf.tmp.twiurl_ns+' - 超水道';
+						}else{
+							tf.tmp.twitext='読了！ ghostpia 第4話「あの子といっしょでひとりの日」 - 超水道 ';
+						}
+						break;
+				}
+				if (f.ghostpia.constant.getValue('novelsphere')){
+					tf.tmp.twilink='https://twitter.com/intent/tweet?text='+encodeURI(tf.tmp.twitext)+'&hashtags=ghostpia&url='+tf.tmp.twiurl;
+				}else{
+					tf.tmp.twilink='https://twitter.com/intent/tweet?text='+encodeURI(tf.tmp.twitext)+'&hashtags=ghostpia&url='+tf.tmp.twiurl;
+				}
+				$('#twitter_bt').removeClass('pushSS_animation_link');
+				window.open(tf.tmp.twilink,'_blank');
+			}, 1000);
+		});
+
+		$('#enquete').on('click',function(){
+			$('#enquete').addClass('pushSS_animation_link');
+			clearTimeout(timer3);
+			timer3 = setTimeout(function(){
+				$('#enquete').removeClass('pushSS_animation_link');
+				window.open("http://ghostpia.xyz/form/","_blank");
+			}, 1000);
+		});
+
+		$('#soundtrack_iTunes').on('click',function(){
+			$('#soundtrack_iTunes').addClass('pushSS_animation_link');
+			clearTimeout(timer3);
+			timer3 = setTimeout(function(){
+				$('#soundtrack_iTunes').removeClass('pushSS_animation_link');
+				window.open(tf.tmp.itunesurl,"_blank");
+			}, 1000);
+		});
+
+		$('#soundtrack_AmazonMP3').on('click',function(){
+			$('#soundtrack_AmazonMP3').addClass('pushSS_animation_link');
+			clearTimeout(timer3);
+			timer3 = setTimeout(function(){
+				$('#soundtrack_AmazonMP3').removeClass('pushSS_animation_link');
+				window.open('http://www.amazon.co.jp/gp/product/B00OXTIMA4/ref=dm_ws_sp_ps_dp',"_blank");
+			}, 1000);
+		});
+
+	}
+
+
+	//波紋表示
+		if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+			$(this).bind('touchend', function() {
+				var widthScale = innerWidth / config.scWidth;
+				var heightScale = innerHeight / config.scHeight;
+				var scale = Math.min(widthScale,heightScale);
+
+				var z = scale;//Number($('#meta-container').css('transform').match(/.*?,/i)[0].slice(7, -1));
+			    event.preventDefault();                     // ページが動いたり、反応を止める（A タグなど）
+			    var x = (event.changedTouches[0].pageX-Math.floor(Number($('#meta-container').parents('.overlay').css('left').slice(0,-2))))/z; // X 座標の位置
+			    var y = (event.changedTouches[0].pageY-Math.floor(Number($('#meta-container').parents('.overlay').css('top').slice(0,-2))))/z; // Y 座標の位置
+
+				$('#meta-container').append('<div class=locatedPoint></div>')
+				$('.locatedPoint').css({position:'fixed','top':(y)-25,'left':(x)-25,display:'block','z-index':999})
+					.css({'-webkit-animation':'tapev 0.5s ease-out','animation':'tapev 0.5s ease-out'});
+				setTimeout(function(){
+					$('.locatedPoint').remove(':first');
+				},500)
+			});
+		}else{
+			$(this).bind('click', function(e){
+				var widthScale = innerWidth / config.scWidth;
+				var heightScale = innerHeight / config.scHeight;
+				var scale = Math.min(widthScale,heightScale);
+
+				var z = scale;//Number($('#meta-container').css('transform').match(/.*?,/i)[0].slice(7, -1));
+				var x = (e.pageX-Math.floor(Number($('#meta-container').parents('.overlay').css('left').slice(0,-2))))/z;
+				var y = (e.pageY-Math.floor(Number($('#meta-container').parents('.overlay').css('top').slice(0,-2))))/z;
+
+				$('#meta-container').append('<div class=locatedPoint></div>')
+				$('.locatedPoint').css({position:'fixed','top':(y)-25,'left':(x)-25,display:'block','z-index':999})
+					.css({'-webkit-animation':'tapev 0.5s ease-out','animation':'tapev 0.5s ease-out'});
+				setTimeout(function(){
+					$('.locatedPoint').remove(':first');
+				},500)
+			});
+		}
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+<style type="text/css">
+	@font-face {
+		font-family: 'logotype';
+		src: url('font/logotype.woff') format('woff'), url('font/logotype.ttf') format('truetype');
+	}
+
+	body {
+		font-family: 'logotype';
+		font-size: 25px;
+		color: #fff;
+	}
+
+	h1 {
+		font-size: 1.5em;
+		text-align: center;
+	}
+
+	#meta-meta {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0.6);
+	}
+	#meta-container {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 1136px;
+		height: 640px;
+		background: center center;
+	}
+
+	#dialog-container {
+		transition: opacity 0.25s linear;
+		position: absolute;
+		top: 0px;
+		left: 0;
+		width: 1136px;
+		height: 640px;
+		opacity: 0;
+		background-repeat: no-repeat;
+		background-position: center top;
+		background-image:url("");
+    background-color: rgba(0,0,0,0.5);
+	}
+
+	#dialog-header {
+		width: 100%;
+		position: absolute;
+		top: 50px;
+		line-height: 2;
+		text-align: center;
+		color: #fff;
+		margin-bottom: 100px;
+	}
+	#dialog-text {
+		/*position: absolute;*/
+		/*top: 300px;*/
+		text-align: center;
+		color: #fff;
+	}
+
+	.dialog-button {
+		cursor: pointer;
+		position: absolute;
+		top: 400px;
+		width: 251px;
+		height: 129px;
+		background-position: 0 0;
+		/*background-color: rgba(100,200,255,0.2);*/
+	}
+
+	.dialog-button:hover {
+		background-position: 251px 0;
+	}
+
+	.dialog-button:active {
+		background-position: 251px 0;
+	}
+
+	.dialog-button-1of2 {
+		left: 310px;
+		background-image:url("plugin/html_overlay/html/dialogimg/quickload_yes.png");
+	}
+
+	.dialog-button-2of2 {
+		left: 575px;
+		background-image:url("plugin/html_overlay/html/dialogimg/quickload_no.png");
+	}
+
+	.dialog-button-1of1 {
+		left: 545px;
+	}
+</style>
+</head>
+<body>
+<div id="meta-meta">
+<div id="meta-container">
+	<div id="dialog-container">
+		<h1 id="dialog-header"></h1>
+		<p id="dialog-text"></p>
+		<div class="dialog-button dialog-button-1of2" id="yes"></div>
+		<div class="dialog-button dialog-button-2of2" id="no"></div>
+	</div>
+</div>
+</div>
+
+<script>
+	Overlay(function (callback, args) {
+
+		$('#meta-meta').css('opacity', 1).hide();
+
+		$('#meta-container').css('background', 'url("image/'+ChapterList[tf.tmp.newer_story-1].kv+'.png") ')
+
+		$("#dialog-header").html(tf.tmp.selectSkipHeader);
+		$("#dialog-text").html(tf.tmp.selectSkipText);
+
+		var timer2;
+
+		if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+
+			$('#no').on('touchend',function(){
+				$('#no').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					callback('no');
+				}, 300);
+			})
+			$('#yes').one('touchend',function(){
+				$('#yes').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					callback('yes');
+				}, 300);
+			});
+		}else{
+			$('#no').on('click',function(){
+				$('#no').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					callback('no');
+				}, 300);
+			})
+			$('#yes').one('click',function(){
+				$('#yes').off();
+				$('#meta-meta').css('opacity', 0);
+				clearTimeout(timer2);
+				timer2 = setTimeout(function(){
+					callback('yes');
+				}, 300);
+			});
+		}
+
+		$(document).ready(function() {
+			$('#meta-meta').fadeIn('400', function() {
+				$('#dialog-container').css('opacity', 1);
+			});
+		});
+		// $("#meta-meta").fadeIn('250', function() {
+		// });
+	});
+</script>
+</body>
+</html>

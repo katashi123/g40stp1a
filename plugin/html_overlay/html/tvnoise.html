@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title></title>
+</script>
+
+<style type="text/css">
+<!--
+
+#meta-meta_tvnoise {
+	transition: opacity 0.2s linear;
+	/*background-color: #000;*/
+	position: absolute;
+	top: 0;
+	left: 0;		
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#meta-container_tvnoise {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 1136px;
+	height: 640px;
+}
+
+.tsukubach-animation {
+	overflow: hidden;
+	width: 1136px;
+	height: 640px;
+}
+
+-->
+</style>
+
+
+
+</head>
+<body>
+
+<div id="meta-meta_tvnoise">
+	<div id="meta-container_tvnoise">
+		<div id="mov" class="tsukubach-animation"></div>
+	</div>
+</div>
+
+
+<script>
+	Overlay(function (callback, args) {
+
+		// $('#main-wrapper').css('z-index','1');
+		// $('#meta-meta_tvnoise').parents('.overlay').css('z-index','0');
+		$('#mov').css('background','url(image/tvnoise.png) no-repeat 0px 0px');
+
+		setTimeout(function(){
+			// ダイアログの位置を計算し初期化
+			var widthScale = innerWidth / config.scWidth;
+			var heightScale = innerHeight / config.scHeight;
+			var scale = Math.min(widthScale,heightScale);
+			var left = (innerWidth - config.scWidth * scale) / 2;
+			var top = (innerHeight - config.scHeight * scale) / 2;
+			$('#meta-meta_tvnoise').css('opacity', 1);
+			$('#meta-container_tvnoise')
+				.css('transformOrigin','0% 0%')
+				.css('transform','scale('+1+')')
+				.css('left', 0 + 'px')
+				.css('top', 0 + 'px');
+			$('#mov').css('background-position', '0 0')
+			playvideo();
+		}, 100);
+
+		var setTimer = null;
+		function onWindowResizedOverlayMovie() {
+			clearTimeout(setTimer);
+			setTimer = setTimeout(function(){
+				var widthScale = innerWidth / config.scWidth;
+				var heightScale = innerHeight / config.scHeight;
+				var scale = Math.min(widthScale,heightScale);
+				var left = (innerWidth - config.scWidth * scale) / 2;
+				var top = (innerHeight - config.scHeight * scale) / 2;
+
+				$('#meta-container_tvnoise')
+					.css('transformOrigin','0% 0%')
+					.css('transform','scale('+1+')')
+					.css('left', 0 + 'px')
+					.css('top', 0 + 'px');
+				$('#mov').css('background-position', '0 0')
+				playvideo();
+			}, 300);
+		}
+
+		var count = null;
+		function playvideo() {
+//		    new Tag("playse",{"storage":"flash_se","o2_block":"false"}).run();
+			clearInterval(count);
+			if (ua.device === 'ipod' || ua.device === 'ipad'){
+				var changeTime = 80;
+			}else{
+				var changeTime = 40;
+			}
+		    count = setInterval(changeImg, changeTime);
+		    var i = 0;
+		    function changeImg(){
+		    	if (tf.tmp.dispatchStatus == 'fadeOut'){
+		    		$('#meta-meta_tvnoise').css({'transition':'opacity 2s ease-out 1.5s','opacity':0});
+		    		tf.tmp.dispatchStatus = true;
+		    	}
+		    	//htmlOverlayの外側からフラグ処理によって終わりにする
+		    	if (tf.tmp.dispatchStatus == false){
+		    		//外から消すとリサイズイベントが残ったままになって、リサイズの度にクリックイベントが発生するのでここで明確にオフにしておく
+		    		$(window).unbind('resize', onWindowResizedOverlayMovie);
+		    		// debugger;
+					// //変更を加えたmain-wrapperはここで元に戻しておく
+					// $('#main-wrapper').css('z-index','');
+					//勝手にイベントが発生し続けるのでタイマーも忘れずに解除しておく
+		    		clearTimeout(setTimer);
+		    		clearInterval(count);
+		    		callback();
+		    	}else{
+					i = Math.floor(Math.random()*-3408);
+					// console.log("i: "+i);
+					$('#mov').css('background-position', i +'px' + ' 0');
+			    }
+		    }
+		}
+
+		$(window).on('resize', onWindowResizedOverlayMovie);
+
+		var doubleTouchStartTimestamp = 0;
+		$(this).bindFirst("touchstart", function (event) {
+			var now = Date.now();
+			if (doubleTouchStartTimestamp + 500 > now) {
+				event.preventDefault();
+			} else {
+				doubleTouchStartTimestamp = now;
+			}
+		});
+
+
+
+	});
+
+</script>
+
+</body>
+</html>

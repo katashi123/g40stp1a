@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>ghostpia</title>
+
+<script type="text/javascript" src="plugin/html_overlay/html/iscroll.js"></script>
+<script type="text/javascript">
+	Overlay(function (callback, args) {
+
+		audio = new Audio();
+		audio.src = "plugin/html_overlay/html/zoomin.mp4"
+
+		$('.tap_box').hide();
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+		//メインのメニュー
+		//novelsphere modeの場合
+			if (tf.tmp.novelsphere == true){
+				$('#col2row1').children('.img_radius').css('background-image','url("plugin/html_overlay/html/img/startgame'+tf.tmp.storyopen+'.png")');
+				$('#col2row2').remove();
+				//セーブされている場合は「しおりから」を表示
+				if (!tf.tmp.savedataCheck){
+					$('#col2row3').remove();
+					$('.cursol_bottom','#col2row1').remove();
+				}else{
+					$('#col2row3').children('.img_radius').css('background-image','url('+ev.save.snapshot[1]+')');
+				}
+				//オートセーブがある場合は「前回の続きから」を表示
+				if (!tf.tmp.qsavedataCheck){
+					$('.cursol_bottom','#col2row3').remove();
+					$('#col2row4').remove();
+				}else{
+					$('#col2row4').children('.img_radius').css('background-image','url('+ev.save.snapshot[0]+')');
+				}
+
+		//novelsphere modeではなく、1話をクリア済みで、初めて2話をプレイする場合は「2話から」を表示
+			} else if (sf.ghostpia_chapter[1] < 1 && sf.ghostpia_chapter[0] == 14 && sf.ghostpia_finish_story == 1){
+				//「はじめから」を表示
+				$('#col2row1').children('.img_radius').css('background-image','url("plugin/html_overlay/html/img/startgame1.png")');
+				$('#col2row2').children('.img_radius').css('background-image','url("plugin/html_overlay/html/img/startgame2.png")');
+				//セーブされている場合は「しおりから」を表示
+				if (!tf.tmp.savedataCheck){
+					$('#col2row3').remove();
+					$('.cursol_bottom','#col2row2').remove();
+				}else{
+					$('#col2row3').children('.img_radius').css('background-image','url('+ev.save.snapshot[1]+')');
+				}
+				//オートセーブがある場合は「前回の続きから」を表示
+				if (!tf.tmp.qsavedataCheck){
+					$('.cursol_bottom','#col2row3').remove();
+					$('#col2row4').remove();
+				}else{
+					$('#col2row4').children('.img_radius').css('background-image','url('+ev.save.snapshot[0]+')');
+				}
+			} else {
+				//「はじめから」を表示
+				$('#col2row1').children('.img_radius').css('background-image','url("plugin/html_overlay/html/img/startgame1.png")');
+				$('#col2row2').remove();
+
+				//セーブされている場合は「しおりから」を表示
+				if (!tf.tmp.savedataCheck){
+					$('#col2row3').remove();
+					$('.cursol_bottom','#col2row1').remove();
+				}else{
+					$('#col2row3').children('.img_radius').css('background-image','url('+ev.save.snapshot[1]+')');
+				}
+				//オートセーブがある場合は「前回の続きから」を表示
+				if (!tf.tmp.qsavedataCheck){
+					$('.cursol_bottom','#col2row3').remove();
+					$('#col2row4').remove();
+				}else{
+					$('#col2row4').children('.img_radius').css('background-image','url('+ev.save.snapshot[0]+')');
+				}
+			}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+		//チャプター
+		//ノベルスフィア公開でない場合
+			if (!f.ghostpia.constant.getValue('novelsphere')){
+
+				if (Number(sf.ghostpia_story) <= 0){
+					$('div').remove('.story1');
+					$('div').remove('.story2');
+					$('div').remove('.story3');
+					$('.cursol_bottom','#col3row1').remove();
+				}else{
+					for (var i = 0; i < Number(sf.ghostpia_story); i++) {
+						var iii = i+1;
+						if (iii == 1){
+							$('#chapter1_0').css('background-image','url("plugin/html_overlay/html/img/chapterSS/ss1_0.png")');
+							// $('#chapter1_0').children('div').css({'background':'center url("plugin/html_overlay/html/img/chaptermenu_s1_c0.png") no-repeat rgba(0,0,0,0.4)','background-size':'contain'});
+						}
+						for (var ii = 1; ii <= Number(sf.ghostpia_chapter[i]); ii++) {
+							$('#chapter'+iii+'_'+ii+'').css('background-image','url("plugin/html_overlay/html/img/chapterSS/ss'+iii+'_'+ii+'.png")');
+							// $('#chapter'+iii+'_'+ii+'').children('div').css({'background':'center url("plugin/html_overlay/html/img/chaptermenu_s'+iii+'_c'+ii+'.png") no-repeat rgba(0,0,0,0.4)','background-size':'contain'});
+						}
+					}
+					$('div').remove('#chap_noopen');
+
+					for (var i = Number(sf.ghostpia_story); i <= sf.ghostpia_chapter.length; i++){
+						if (i == 0){
+							continue;
+						}
+						var chapcount = 0;
+						for (var ii = 0; ii <= f.ghostpia.constant.getValue('chapters')[i-1]; ii++) {
+							if (i == 2 && ii == 0){
+								continue;
+							}
+							if (ii <= sf.ghostpia_chapter[i-1]){
+								continue;
+							}
+							$('#chapter'+i+'_'+ii+'').remove();
+
+							if (i == 1){
+								if (Number(sf.ghostpia_chapter[i-1]) < ii && ii%4 == 0){
+									$('div').remove('.chap'+ii);
+									chapcount=Math.floor(ii/4);
+									$('.cursol_bottom','#col3row'+chapcount).remove();
+									//console.log("::::Remove .chap"+ii+" , cursol_bottom #col3row"+chapcount+" ");
+								}
+							} else if (i == 2){
+								if (Number(sf.ghostpia_chapter[i-1]) < ii && ii%4 == 1){
+									$('div').remove('.chap'+ii);
+									chapcount=Math.floor(ii/4);
+									$('.cursol_bottom','#col3row'+(4+chapcount)).remove();
+									//console.log("::::Remove .chap"+ii+" , cursol_bottom #col3row"+(4+chapcount)+" ");
+								}
+							}
+						};
+					}
+				}
+
+		//ノベルスフィアでの公開の場合（つまり最初からチャプターをオンにする場合）
+		//※ノベルスフィアは一話ずつ公開なので、storyopenで設定した章しかオープンにしないようにする
+			}else{
+				if (tf.tmp.storyopen >= 1){
+					for (var ii = 0; ii <= f.ghostpia.constant.getValue('chapters')[tf.tmp.storyopen-1]; ii++) {
+						if ((tf.tmp.storyopen == 1 && ii >= 15) || (tf.tmp.storyopen == 2 && ii == 0)){
+							continue;
+						}
+						$('#chapter'+tf.tmp.storyopen+'_'+ii+'').css('background-image','url("plugin/html_overlay/html/img/chapterSS/ss'+tf.tmp.storyopen+'_'+ii+'.png")');
+						// $('#chapter'+tf.tmp.storyopen+'_'+ii+'').children('div').css({'background':'center url("plugin/html_overlay/html/img/chaptermenu_s'+tf.tmp.storyopen+'_c'+ii+'.png") no-repeat rgba(0,0,0,0.4)','background-size':'contain'});
+					};
+					$('div').remove('#chap_noopen');
+					//オープンにしない方は消す
+					if (tf.tmp.storyopen<2){
+						$('div').remove('.story2');
+						$('.cursol_bottom','#col3row4').remove();
+					}else if (tf.tmp.storyopen==2){
+						$('.story1').remove();
+						$('#col3row1').remove();
+						$('.cursol_top','#col3row5').remove();
+					}
+
+					for (var i = Number(tf.tmp.storyopen); i <= sf.ghostpia_chapter.length; i++){
+						if (tf.tmp.chapopen != -1){
+							var chapcount = 0;
+							for (var ii = 0; ii <= f.ghostpia.constant.getValue('chapters')[i-1]; ii++) {
+								if (i == 2 && ii == 0){
+									continue;
+								}
+								if (ii <= tf.tmp.chapopen){
+									continue;
+								}
+								if (i == 2 && ii == 25 && sf.ghostpia_finish_story == 2){
+									continue;
+								}
+								//console.log("story: "+i+", chapter remove: "+ii+"");
+								$('#chapter'+i+'_'+ii+'').remove();
+
+								if (i == 1){
+									if (tf.tmp.chapopen < ii && ii%4 == 0){
+										$('div').remove('.chap'+ii);
+										chapcount=Math.floor(ii/4);
+										$('.cursol_bottom','#col3row'+(4+chapcount)).remove();
+										//console.log("::::Remove .chap"+ii+" , cursol_bottom #col3row"+(4+chapcount)+" ");
+									}
+								} else if (i == 2){
+									if (tf.tmp.chapopen < ii && ii%4 == 1){
+										$('div').remove('.chap'+ii);
+										chapcount=Math.floor(ii/4);
+										$('.cursol_bottom','#col3row'+(4+chapcount)).remove();
+										//console.log("::::Remove .chap"+ii+" , cursol_bottom #col3row"+(4+chapcount)+" ");
+									}
+								}
+							};
+						}
+					}
+				}
+			}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+		//起動時の画面位置設定
+			currentX = 1;
+			if (sf.ghostpia_chapter[1] < 1 && sf.ghostpia_chapter[0] == 14 && sf.ghostpia_finish_story == 1 && tf.tmp.novelsphere == false){
+				currentY = 1;
+			}else if(tf.tmp.savedataCheck && tf.tmp.qsavedataCheck){
+				currentY = 1;
+			}else if (tf.tmp.savedataCheck && !tf.tmp.qsavedataCheck){
+				currentY = 1;
+			}else if (!tf.tmp.savedataCheck && tf.tmp.qsavedataCheck){
+				currentY = 1;
+			}else{
+				currentY = 0;
+			}
+
+		var audio;
+		$(this).one('touchstart', function fakeLoad(){
+			audio = new Audio();
+			audio.src = "plugin/html_overlay/html/zoomin.mp4"
+			audio.load();
+		});
+
+		var myScroll = new IScroll('#scroller-wrapper', {
+			scrollX: true,
+			scrollY: false,
+			snap:'.column',
+			momentum : false,
+			snapThreshold: 0.1,
+			directionLockThreshold:0
+		});
+
+		var subScroll = {}
+		$('.column').each(function(index){
+			subScroll[index] = new IScroll(this, {
+				scrollX: false, scrollY: true,
+				snap: '.row',
+				momentum: false,
+				snapThreshold: 0.2,
+				directionLockThreshold:0,
+				tap : true
+			});
+
+			//ここで、各y位置の初期設定をする
+				if ($(this).is('#column2')){
+					subScroll[index].goToPage(currentX,currentY,0);
+				}else{
+					subScroll[index].goToPage(currentX,0,0);
+				}
+
+			subScroll[index].on('scrollStart', function(){
+				try{
+					audio.currentTime = 0;
+					audio.play()
+				}catch(e){}
+			});
+		});
+
+		//x位置の初期設定をする
+			myScroll.goToPage(currentX,currentY,0);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//リサイズイベント
+/*
+		function onWindowResizedTitleMenu() {
+				var widthScale = innerWidth / config.scWidth;
+				var heightScale = innerHeight / config.scHeight;
+				var scale = Math.min(widthScale,heightScale);
+				var left = (innerWidth - config.scWidth * scale) / 2;
+				var top = (innerHeight - config.scHeight * scale) / 2;
+
+				$('#html_overlay')
+					.css('transformOrigin','0% 0%')
+					.css('transform','scale('+scale+')')
+					.css('left', left + 'px')
+					.css('top', top + 'px');
+		}
+
+        function getViewport(){
+          var w=window,d=document,e=d.documentElement,g=d.getElementsByTagName('body')[0],x=w.innerWidth||e.clientWidth||g.clientWidth,y=w.innerHeight||e.clientHeight||g.clientHeight;
+          return {width:x,height:y};
+        }
+        function resizeElement(){
+            var viewport = getViewport();
+            var w_zoom = viewport.width / 1136;
+            var h_zoom = viewport.height / 640 ;
+            if(w_zoom<h_zoom){
+                //高さが足りない；
+                $("#html_overlay").css( "zoom" ,w_zoom );
+                var v_top=viewport.height-$("#html_overlay").height()*w_zoom;
+                v_top=v_top/2/w_zoom;
+                $("#html_overlay").css({
+                    top : v_top,
+                    left : 0
+                });
+            }else{
+                //幅が足りない
+                $("#html_overlay").css('top',0)
+                var v_top=viewport.width-$("#html_overlay").width()*h_zoom;
+                v_top=v_top/2/h_zoom;
+                $("#html_overlay").css({
+                    left : v_top,
+                    top : 0
+                });
+                $("#html_overlay").css( "zoom" ,h_zoom );
+            }
+        }
+        // $(window).on('resize', resizeElement);
+        // I give it up, iOS browser is crazy
+        var resizeTimer = setInterval(function(){
+            resizeElement();
+        },10);
+
+        var start = Date.now();
+        var timer = setInterval(function(){
+            if( Date.now() - start > 1000 ){
+                  clearInterval(timer);
+            }
+            resizeElement();
+        },10);
+
+        var resizeTimer = setInterval(function(){
+            onWindowResizedTitleMenu();
+        },100);
+*/
+		setTimeout(function(){
+	        $('#dummy').fadeIn();
+		},100);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//その他関数
+
+		$(this).on('touchmove', function(e){
+			e.preventDefault();
+		});
+
+		var timer2;
+
+//ちなみにこれはチャプターの選択があったらfirst.ksへ戻る関数
+
+		function goToChapter(storage,num){
+			tf.tmp.chapnum = num;
+			tf.tmp.chapfile = storage;
+
+			$('.chapter'+num).addClass('pushSS_animation');
+			$('#dummy').css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'}).css('opacity', 0);
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){callback('chap')}, 2000);
+		}
+
+	clearTimeout(timer2);
+	timer2 = setTimeout(function(){
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//各メニュー＆チャプターのリンクを設定する
+		//CALLBACK chapters
+		$('#column3').on('tap', function(e){
+			if (typeof $(e.target).attr('id') !== 'undefined'){
+				var tapId = $(e.target).attr('id');
+				if (tapId.indexOf('chapter') != -1){
+					var result = tapId.match(/chapter([0-9]+)_([0-9]+)/);
+					// console.log("result[1] = "+result[1]+", result[2] = "+result[2]);
+					if (result[1] == 1){
+						if (result[2] == 0){
+							goToChapter('tutorial', result[2]);
+						}else{
+							goToChapter('01', result[2]);
+						}
+					}else if(result[1] == 2){
+						if (result[2] < 11){
+							goToChapter('02', result[2]);
+						}else{
+							goToChapter('02_2', result[2]);
+						}
+					}else if(result[1] == 3){
+						if (result[2] < 7){
+							goToChapter('03', result[2]);
+						}else{
+							goToChapter('03_2', result[2]);
+						}
+					}
+				}
+			}
+		});
+
+	// for (var i = 0; i < f.ghostpia.constant.getValue('chapters').length; i++) {
+	// 	var iii=i+1;
+	// 	switch (iii){
+	// 		case 1:
+	// 			for (var ii = 1; ii <= f.ghostpia.constant.getValue('chapters')[i]; ii++) {
+	// 				$("#chapter"+iii+"_"+ii).on('tap', {num: ii}, function(event){
+	// 					goToChapter('01', event.data.num);
+	// 				});
+	// 			};
+	// 			break;
+	// 		case 2:
+	// 			for (var ii = 1; ii <= f.ghostpia.constant.getValue('chapters')[i]; ii++) {
+	// 				if (ii < 11){
+	// 					$("#chapter"+iii+"_"+ii).on('tap', {num: ii}, function(event){
+	// 						goToChapter('02', event.data.num);
+	// 					});
+	// 				} else {
+	// 					$("#chapter"+iii+"_"+ii).on('tap', {num: ii}, function(event){
+	// 						goToChapter('02_2', event.data.num);
+	// 					});
+	// 				}
+	// 			};
+	// 			break;
+	// 	}
+	// };
+
+	//gotoiTunes
+		$('#col1row2').children('#iTunes').on('tap', function(){
+			$('#col1row2').children('#iTunes').addClass('pushSS_animation_link');
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				$('#col1row2').children('#iTunes').removeClass('pushSS_animation_link');
+				if (ua.os == 'ios' || ua.os == 'android'){
+					document.location.href='https://itunes.apple.com/jp/album/terminus-collected-pieces/id1017609025';
+				}else{
+					window.open("https://itunes.apple.com/jp/album/terminus-collected-pieces/id1017609025","_blank");
+				}
+			}, 1000);
+		});
+
+	// //gotoAmazonMP3
+	// 	$('#col1row2').children('#AmazonMP3').on('tap', function(){
+	// 		$('#col1row2').children('#AmazonMP3').addClass('pushSS_animation_link');
+	// 		clearTimeout(timer2);
+	// 		timer2 = setTimeout(function(){
+	// 			$('#col1row2').children('#AmazonMP3').removeClass('pushSS_animation_link');
+	// 			if (ua.os == 'ios' || ua.os == 'android'){
+	// 				document.location.href='http://www.amazon.co.jp/gp/product/B00OXTIMA4/ref=dm_ws_sp_ps_dp';
+	// 			}else{
+	// 				window.open("http://www.amazon.co.jp/gp/product/B00OXTIMA4/ref=dm_ws_sp_ps_dp","_blank");
+	// 			}
+	// 		}, 1000);
+	// 	});
+
+	//gotoForm
+		$('#col1row3').children('.img_radius').on('tap', function(){
+			$('#col1row3').children('.img_radius').addClass('pushSS_animation_link');
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				$('#col1row3').children('.img_radius').removeClass('pushSS_animation_link');
+				if (ua.os == 'ios' || ua.os == 'android'){
+					document.location.href='http://ghostpia.xyz/form/';
+				}else{
+					window.open("http://ghostpia.xyz/form/","_blank");
+				}
+			}, 1000);
+		});
+
+	//CALLBACK games
+
+		$('#col2row1').children('.img_radius').on('tap', function(){
+			$('#col2row1').children('.img_radius').addClass('pushSS_animation');
+			$('#startgame').off().fadeOut(500);
+			$('#dummy').css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'}).css('opacity', 0);
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				if (tf.tmp.novelsphere == false){
+					callback('start');
+				} else if (tf.tmp.novelsphere == true){
+					if (tf.tmp.storyopen == 1){
+						callback('start');
+					}else if (tf.tmp.storyopen == 2){
+						callback('start2');
+					}
+				}
+			}, 2000);
+		});
+
+		$('#col2row2').children('.img_radius').on('tap', function(){
+			$('#col2row2').children('.img_radius').addClass('pushSS_animation');
+			$('#startgame').off().fadeOut(500);
+			$('#dummy').css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'}).css('opacity', 0);
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				callback('start2');
+			}, 2000);
+		});
+
+		$('#col2row3').children('.img_radius').on('tap', function(){
+			$('#col2row3').children('.img_radius').addClass('pushSS_animation');
+			$('#loadgame').off().fadeOut(500);
+			$('#dummy').css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'}).css('opacity', 0);
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				callback('load');
+			}, 2000);
+		});
+
+		$('#col2row4').children('.img_radius').on('tap', function(){
+			$('#col2row4').children('.img_radius').addClass('pushSS_animation');
+			$('#loadgame').off().fadeOut(500);
+			$('#dummy').css({'-webkit-transition-delay':'1s','-moz-transition-delay':'1s','-ms-transition-delay':'1s','-o-transition-delay':'1s','transition-delay':'1s'}).css('opacity', 0);
+			clearTimeout(timer2);
+			timer2 = setTimeout(function(){
+				callback('qload');
+			}, 2000);
+		});
+
+	}, 1000);
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//CURSOL_event
+
+	function noiseplay(){
+		audio.pause();
+		audio.currentTime = 0;
+		audio.play();
+	}
+
+	$('.cursol_left').on('tap', function(){
+		noiseplay();
+		myScroll.prev(500);
+	});
+	$('.cursol_right').on('tap', function(){
+		noiseplay();
+		myScroll.next(500);
+	});
+	$('.cursol_top').on('tap', function(){
+		noiseplay();
+		if ($(this).parents().is('#column1')){
+			subScroll[0].prev(500);
+		}else if ($(this).parents().is('#column2')){
+			subScroll[1].prev(500);
+		}else if ($(this).parents().is('#column3')){
+			subScroll[2].prev(500);
+		}
+	});
+	$('.cursol_bottom').on('tap', function(){
+		noiseplay();
+		if ($(this).parents().is('#column1')){
+			subScroll[0].next(500);
+		}else if ($(this).parents().is('#column2')){
+			subScroll[1].next(500);
+		}else if ($(this).parents().is('#column3')){
+			subScroll[2].next(500);
+		}
+
+	});
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//波紋を表示する
+
+	if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+		var onEventName = 'touchend';
+	}else{
+		var onEventName = 'click';
+	}
+
+	$(this).bind(onEventName, function(e) {
+		var widthScale = innerWidth / config.scWidth;
+		var heightScale = innerHeight / config.scHeight;
+		var scale = Math.min(widthScale,heightScale);
+		var z = scale;//Number($('#html_overlay').parents('.overlay').css('transform').match(/.*?,/i)[0].slice(7, -1));
+		if (onEventName == 'touchend'){
+		    event.preventDefault();                     // ページが動いたり、反応を止める（A タグなど）
+		    var x = (event.changedTouches[0].pageX-Math.floor(Number($('#html_overlay').parents('.overlay').css('left').slice(0,-2))))/z; // X 座標の位置
+		    var y = (event.changedTouches[0].pageY-Math.floor(Number($('#html_overlay').parents('.overlay').css('top').slice(0,-2))))/z; // Y 座標の位置
+		}else{
+			var x = (e.pageX-Math.floor(Number($('#html_overlay').parents('.overlay').css('left').slice(0,-2))))/z;
+			var y = (e.pageY-Math.floor(Number($('#html_overlay').parents('.overlay').css('top').slice(0,-2))))/z;
+		}
+		$('#scroller-wrapper').append('<div class=locatedPoint></div>')
+		$('.locatedPoint').css({position:'fixed','top':(y)-25,'left':(x)-25,display:'block','z-index':999})
+			.css({'-webkit-animation':'tapev 0.5s ease-out','animation':'tapev 0.5s ease-out'});
+		setTimeout(function(){
+			$('.locatedPoint').remove(':first');
+		},500)
+	});
+
+	setTimeout(function(){
+		$('#dummy').css('opacity', 1);
+		$('.tap_box').fadeIn();
+	},500);
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//つぶやくボタンの設定
+
+	var timer3;
+
+	$('#html_overlay').children('a').on(onEventName,function(){
+		$('#twitter_bt').addClass('pushSS_animation_link');
+		clearTimeout(timer3);
+		timer3 = setTimeout(function(){
+			if (f.ghostpia.constant.getValue('tf.tmp.novelsphere')){
+
+				if (Number(sf.ghostpia_story) <= 1){
+					if (Number(sf.ghostpia_finish_story) == 1){
+						tf.tmp.twitext='読了！ ghostpia 第1話「ようこそここへこの町へ」'+tf.tmp.twiurl_ns+' - 超水道';
+					}else{
+						tf.tmp.twitext='オススメ！ ghostpia 第1話「ようこそここへこの町へ」'+tf.tmp.twiurl_ns+' - 超水道';
+					}
+				}else if (Number(sf.ghostpia_story) == 2){
+					//２話読了済み
+					if (Number(sf.ghostpia_finish_story) == 2){
+						tf.tmp.twitext='読了！ ghostpia 第2話「なもなき名無しのお誕生日」'+tf.tmp.twiurl_ns+' - 超水道';
+					}else{
+						tf.tmp.twitext='オススメ！ ghostpia 第2話「なもなき名無しのお誕生日」'+tf.tmp.twiurl_ns+' - 超水道';
+					}
+				}else if (Number(sf.ghostpia_story) == 3){
+					//3話読了済み
+					if (Number(sf.ghostpia_finish_story) == 3){
+						tf.tmp.twitext='読了！ ghostpia 第3話「はたらくしごとをみつける日」'+tf.tmp.twiurl_ns+' - 超水道';
+					}else{
+						tf.tmp.twitext='オススメ！ ghostpia 第3話「はたらくしごとをみつける日」'+tf.tmp.twiurl_ns+' - 超水道';
+					}
+				}
+			}else{
+				//２話をまだ１チャプター以上読んでいなくて、１話もまだクリアしていない人
+				if (sf.ghostpia_chapter[1] < 1 && Number(sf.ghostpia_finish_story) == 0){
+					tf.tmp.twitext='オススメ！ ghostpia 第1話「ようこそここへこの町へ」 - 超水道';
+				//２話をまだ１チャプター以上読んでいない人（一話は読了済み）
+				}else if (sf.ghostpia_chapter[1] < 1 && Number(sf.ghostpia_finish_story) == 1){
+					tf.tmp.twitext='読了！ ghostpia 第1話「ようこそここへこの町へ」 - 超水道';
+				//一話は読了済み、２話も１チャプター以上読んでいる人
+				}else if (sf.ghostpia_chapter[1] >= 1 && Number(sf.ghostpia_finish_story) == 1){
+					tf.tmp.twitext='オススメ！ ghostpia 第2話「なもなき名無しのお誕生日」 - 超水道';
+				//一話も２話も読了済みの人
+				}else if (sf.ghostpia_chapter[1] >= 1 && Number(sf.ghostpia_finish_story) == 2){
+					tf.tmp.twitext='読了！ ghostpia 第2話「なもなき名無しのお誕生日」 - 超水道';
+				}
+			}
+			tf.tmp.twilink='https://twitter.com/intent/tweet?text='+encodeURI(tf.tmp.twitext)+'&hashtags=ghostpia&url='+tf.tmp.twiurl;
+			$('#twitter_bt').removeClass('pushSS_animation_link');
+
+			if (ua.os == 'ios' || ua.os == 'android' || ua.browser == 'novelsphere'){
+				document.location.href=tf.tmp.twilink;
+			}else{
+				window.open(tf.tmp.twilink,'_blank');
+			}
+		}, 1000);
+		return false;
+	});
+
+
+//version表示
+	$('#version').html("Version: "+tf.tmp.version);
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/*	debugger; */
+	});
+</script>
+<style type="text/css">
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html {
+  -ms-touch-action: none;
+}
+body,
+h1,
+ul,
+li,
+img,
+p {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+body {
+  font-size: 90%;
+  font-family: "ヒラギノ明朝 Pro W3", "Hiragino Mincho Pro", "ＭＳ Ｐ明朝", "MS PMincho", serif;
+  overflow: hidden;
+   color:white;
+  /* this is important to prevent the whole page to bounce */
+}
+#dummy {
+  display: block;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-transition: all 1s ease;
+     -moz-transition: all 1s ease;
+      -ms-transition: all 1s ease;
+       -o-transition: all 1s ease;
+          transition: all 1s ease;
+}
+.dummy_delay {
+	-webkit-transition-delay:3s;
+	   -moz-transition-delay:3s;
+	    -ms-transition-delay:3s;
+	     -o-transition-delay:3s;
+	        transition-delay:3s;
+}
+#html_overlay {
+  width: 1136px;
+  /*	background: url(plugin/html_overlay/html/img/topmenu_base.png); */
+  height: 640px;
+  position: relative;
+}
+#scroller-wrapper {
+  position: absolute;
+  z-index: 1;
+  top: 0px;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+}
+#scroller {
+  position: absolute;
+  z-index: 1;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  width: 3408px;
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  -o-text-size-adjust: none;
+  text-size-adjust: none;
+  background: #fff;
+}
+p {
+  font-size: 90%;
+  padding: 1.2em;
+  line-height: 200%;
+  width:100%;
+}
+h1 {
+  font-size: 30pt;
+  font-weight: bold;
+  padding: 40px 0 20px 0;
+  text-align: center;
+}
+ul{
+	position: relative;
+	color:white;
+	width:610px;
+	height:auto;
+	margin:20px auto;
+}
+li{
+	position: relative;
+	display:inline-block;
+	width:280px;
+	height:auto;
+	margin:0px 10px;
+}
+
+#col2row1 #startgame {
+	width:240px;
+	height:auto;
+	top:200px;
+	left:130px;
+	z-index: 2;
+}
+#startgame ul{
+	width:240px;
+	height:48px;
+	margin:auto;
+	padding:0px;
+}
+#startgame li{
+	width:48px;
+	height:48px;
+	display: block;
+	float: left;
+	margin:0px;
+	padding:0px;
+}
+
+#col2row2 #startgame2 {
+	width:240px;
+	height:auto;
+	top:200px;
+	left:130px;
+	z-index: 2;
+}
+#startgame2 ul{
+	width:240px;
+	height:48px;
+	margin:auto;
+	padding:0px;
+}
+#startgame2 li{
+	width:48px;
+	height:48px;
+	display: block;
+	float: left;
+	margin:0px;
+	padding:0px;
+}
+
+
+#col2row3 #loadgame {
+	width:384px;
+	height:auto;
+	top:200px;
+	left:58px;
+	z-index: 2;
+}
+#loadgame ul{
+	width:384px;
+	height:48px;
+	margin:auto;
+	padding:0px;
+}
+#loadgame li{
+	width:48px;
+	height:48px;
+	display: block;
+	float: left;
+	margin:0px;
+	padding:0px;
+}
+
+#col2row4 #qloadgame {
+	width:240px;
+	height:auto;
+	top:200px;
+	left:130px;
+	z-index: 2;
+}
+#qloadgame ul{
+	width:240px;
+	height:48px;
+	margin:auto;
+	padding:0px;
+}
+#qloadgame li{
+	width:48px;
+	height:48px;
+	display: block;
+	float: left;
+	margin:0px;
+	padding:0px;
+}
+
+#column1 {
+  left: 0px;
+  width: 1136px;
+  background: url(plugin/html_overlay/html/img/chaptermenu_base.png) left center no-repeat;
+}
+#column2 {
+  left: 1135px;
+  width: 1138px;
+  background: url(plugin/html_overlay/html/img/playmenu_base.png) center center no-repeat;
+}
+#column3 {
+  position: absolute;
+  left: 2272px;
+  width: 1136px;
+  background: url(plugin/html_overlay/html/img/infomenu_base.png) right center no-repeat;
+}
+.column {
+  position: absolute;
+  height: 640px;
+  overflow: hidden;
+}
+.row {
+	position: relative;
+  height: 640px;
+  width: 1136px;
+}
+.chaptitle {
+	margin-top: 50px;
+	margin-bottom: 10px;
+}
+.img_radius {
+	width: 500px;
+	height: 281px;
+	left: 313px;
+	top: 180px;
+	box-shadow: 0px 10px 10px rgba(0,0,0,0.4);
+	background: center center no-repeat;
+	background-size: cover;
+	position: relative;
+	border: solid 1px #fff;
+	border-radius: 25px;
+	display: block;
+	margin:0px;
+	-webkit-transition: 0.5s ease;
+	   -moz-transition: 0.5s ease;
+	    -ms-transition: 0.5s ease;
+	     -o-transition: 0.5s ease;
+	        transition: 0.5s ease;
+}
+.img_radius:hover{
+	-webkit-transform: translateY(5px);
+	   -moz-transform: translateY(5px);
+	    -ms-transform: translateY(5px);
+	     -o-transform: translateY(5px);
+	        transform: translateY(5px);
+}
+@-webkit-keyframes pushSS {
+	0% { opacity: 1; -webkit-transform: translateY(5px);}
+	10% { -webkit-transform: translateY(10px); }
+	50% { opacity: 0; -webkit-transform: translateY(-20px);}
+	100% { opacity: 0;}
+}
+@keyframes pushSS {
+	0% { opacity: 1; transform: translateY(5px);}
+	10% { transform: translateY(10px); }
+	50% {opacity: 0; transform: translateY(-20px);}
+	100& {opacity: 0;}
+}
+@-webkit-keyframes pushSS_link {
+	0% { opacity: 1; -webkit-transform: translateY(5px);}
+	10% { -webkit-transform: translateY(10px); }
+	50% { opacity: 0.5; -webkit-transform: translateY(0px);}
+	100% { opacity: 1;}
+}
+@keyframes pushSS_link {
+	0% { opacity: 1; transform: translateY(5px);}
+	10% { transform: translateY(10px); }
+	50% {opacity: 0.5; transform: translateY(0px);}
+	100& {opacity: 1;}
+}
+.pushSS_animation {
+	animation-iteration-count:1;
+	-webkit-animation: pushSS 2s alternate ease-in-out;
+	animation: pushSS 2s alternate ease-in-out;
+}
+.pushSS_animation_link {
+	animation-iteration-count:1;
+	-webkit-animation: pushSS_link 2s alternate ease-in-out;
+	animation: pushSS_link 2s alternate ease-in-out;
+}
+.img_radius > div:first-child{
+	width:100%;
+	height:100%;
+	border-radius: 25px;
+	background-color: rgba(0,0,0,0.4);
+}
+.chapss {
+	position: absolute;
+	width: 270px;
+	height: 152px;
+	line-height: 152px;
+	text-align: center;
+	margin:0px auto;
+	padding: 0;
+	font-family: 'logotype';
+	font-size: 23px;
+	color: #ffffff;
+	text-shadow: rgba(0,0,0,0.6) 1px 1px 10px, rgba(0,0,0,0.6) -1px 1px 10px,
+	             rgba(0,0,0,0.6) 1px -1px 10px, rgba(0,0,0,0.6) -1px -1px 10px;
+}
+.chapss p {
+	width: 100%;
+	height: 152px;
+	line-height: 152px;
+	text-align: center;
+	margin:0px auto;
+	padding: 0;
+	font-family: 'logotype';
+	font-size: 23px;
+	color: #ffffff;
+	text-shadow: rgba(0,0,0,0.6) 1px 1px 10px, rgba(0,0,0,0.6) -1px 1px 10px,
+	             rgba(0,0,0,0.6) 1px -1px 10px, rgba(0,0,0,0.6) -1px -1px 10px;
+	z-index: 99;
+}
+.pos0{
+	left: 280px;
+	top: 150px;
+}
+.pos1{
+	left: 586px;
+	top: 150px;
+}
+.pos2{
+	left: 280px;
+	top: 350px;
+}
+.pos3{
+	left: 586px;
+	top: 350px;
+}
+
+
+#col1row1 {
+  background: url(plugin/html_overlay/html/img/infomenu_credit.png) center center no-repeat;
+}
+#col1row2 {
+  background: url(plugin/html_overlay/html/img/infomenu_iTunes.png) center center no-repeat;
+}
+#col1row3 {
+  background: url(plugin/html_overlay/html/img/infomenu_form.png) center center no-repeat;
+}
+
+@-webkit-keyframes pushbutton {
+	0% { opacity: 1; -webkit-transform: translateY(0px);}
+	100% { opacity: 1; -webkit-transform: translateY(10px);}
+}
+@keyframes pushbutton {
+	0% { opacity: 1; transform: translateY(0px);}
+	100% {opacity: 1; transform: translateY(10px);}
+}
+
+.pushbt_0, .pushbt_1, .pushbt_2, .pushbt_3, .pushbt_4, .pushbt_5, .pushbt_6, .pushbt_7 {
+	width:48px;
+	height:48px;
+	position:relative;
+	overflow:hidden;
+	-webkit-animation: pushbutton 2s infinite alternate ease-in-out;
+	animation: pushbutton 2s infinite alternate ease-in-out;
+}
+.pushbt_0 {
+	-webkit-animation-delay: 0s;
+	animation-delay: 0s;
+}
+.pushbt_1 {
+	-webkit-animation-delay: 0.4s;
+	animation-delay: 0.4s;
+}
+.pushbt_2 {
+	-webkit-animation-delay: 0.8s;
+	animation-delay: 0.8s;
+}
+.pushbt_3 {
+	-webkit-animation-delay: 1.2s;
+	animation-delay: 1.2s;
+}
+.pushbt_4 {
+	-webkit-animation-delay: 1.6s;
+	animation-delay: 1.6s;
+}
+.pushbt_5 {
+	-webkit-animation-delay: 2.0s;
+	animation-delay: 2.0s;
+}
+.pushbt_6 {
+	-webkit-animation-delay: 2.4s;
+	animation-delay: 2.4s;
+}
+.pushbt_7 {
+	-webkit-animation-delay: 2.8s;
+	animation-delay: 2.8s;
+}
+
+#col1row2 > #iTunes {
+	/*background-image: url("plugin/html_overlay/html/img/infomenu_gotoiTunes.png");*/
+	width: 379px;
+	height: 106px;
+	left: 600px;
+	/*top: 250px; これはAmazonMP3も出す時 */
+	top: 280px;
+}
+#col1row2 > #iTunes > div:first-child{
+	width:100%;
+	height:100%;
+	border-radius: 25px;
+	background: url("plugin/html_overlay/html/img/infomenu_gotoiTunes_text.png") no-repeat rgba(0,0,0,0.4) center center;
+}
+/*
+#col1row2 > #AmazonMP3 {
+	background-image: url("plugin/html_overlay/html/img/infomenu_gotoAmazonMP3.png");
+	width: 379px;
+	height: 106px;
+	left: 600px;
+	top: 310px;
+}
+#col1row2 > #AmazonMP3 > div:first-child{
+	width:100%;
+	height:100%;
+	border-radius: 25px;
+	background: url("plugin/html_overlay/html/img/infomenu_gotoAmazonMP3_text.png") no-repeat rgba(0,0,0,0.4) center center;
+}
+*/
+#col1row3 > .img_radius {
+	background-image: url("plugin/html_overlay/html/img/infomenu_gotoform.png");
+	width: 379px;
+	height: 213px;
+	left: 378px;
+	top: 300px;
+}
+#col1row3 > .img_radius > div:first-child{
+	width:100%;
+	height:100%;
+	border-radius: 25px;
+	background: url("plugin/html_overlay/html/img/infomenu_gotoform_text.png") no-repeat rgba(0,0,0,0.4) center center;
+}
+
+#chap_noopen {
+	width:1136px;
+	height:100px;
+	margin:100px auto;
+  background: url(plugin/html_overlay/html/img/chaptermenu_noopen.png) center center no-repeat;
+}
+
+.tap_box {
+	position: absolute;
+	height:50px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+
+@-webkit-keyframes animeleft {
+	0% { opacity: 0; -webkit-transform: translateX(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; -webkit-transform: translateX(-10px);}
+}
+@keyframes animeleft {
+	0% { opacity: 0; transform: translateX(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; transform: translateX(-10px);}
+}
+
+@-webkit-keyframes animeright {
+	0% { opacity: 0; -webkit-transform: translateX(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; -webkit-transform: translateX(10px);}
+}
+@keyframes animeright {
+	0% { opacity: 0; transform: translateX(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; transform: translateX(10px);}
+}
+
+@-webkit-keyframes animetop {
+	0% { opacity: 0; -webkit-transform: translateY(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; -webkit-transform: translateY(-10px);}
+}
+@keyframes animetop {
+	0% { opacity: 0; transform: translateY(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; transform: translateY(-10px);}
+}
+
+@-webkit-keyframes animebottom {
+	0% { opacity: 0; -webkit-transform: translateY(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; -webkit-transform: translateY(10px);}
+}
+@keyframes animebottom {
+	0% { opacity: 0; transform: translateY(0px);}
+	50% { opacity: 1; }
+	100% {opacity: 0; transform: translateY(10px);}
+}
+
+.cursol_left {
+	position: absolute;
+	display: block;
+	left:0px;
+	width:80px;
+	height:640px;
+	background: url(plugin/html_overlay/html/img/cursol_left.png) center center no-repeat;
+	-webkit-animation: animeleft 2s infinite;
+	animation: animeleft 2s infinite;
+}
+.cursol_right {
+	position: absolute;
+	display: block;
+	right:0px;
+	width:80px;
+	height:640px;
+	background: url(plugin/html_overlay/html/img/cursol_right.png) center center no-repeat;
+	-webkit-animation: animeright 2s infinite;
+	animation: animeright 2s infinite;
+}
+.cursol_top {
+	position: absolute;
+	display: block;
+	top:0px;
+	width:1136px;
+	height:80px;
+	background: url(plugin/html_overlay/html/img/cursol_top.png) center center no-repeat;
+	-webkit-animation: animetop 2s infinite;
+	animation: animetop 2s infinite;
+}
+.cursol_bottom {
+	position: absolute;
+	display: block;
+	bottom:0px;
+	width:1136px;
+	height:80px;
+	background: url(plugin/html_overlay/html/img/cursol_bottom.png) center center no-repeat;
+	-webkit-animation: animebottom 2s infinite;
+	animation: animebottom 2s infinite;
+}
+
+
+
+@-webkit-keyframes tapev {
+	0% { opacity: 0; border-radius: 25px; -webkit-transform: scale(1);}
+	50% { opacity: 1; }
+	100% {opacity: 0; border-radius: 50px; -webkit-transform: scale(2);}
+}
+@keyframes tapev {
+	0% { opacity: 0; border-radius: 25px; transform: scale(1);}
+	50% { opacity: 1; }
+	100% {opacity: 0; border-radius: 50px; transform: scale(2);}
+}
+
+#locatedPoint {
+	font-size:24pt;
+	display: none;
+	color:white;
+}
+.locatedPoint {
+	font-size:24pt;
+	display: none;
+	color:white;
+	width:50px;
+	height:50px;
+	border-radius: 25px;
+	border: solid 2px #fff;
+}
+
+#twitter_bt {
+	position:absolute;
+	width:150px;
+	height:150px;
+	display: block;
+	top:0px;
+	left:986px;
+	background:url("plugin/html_overlay/html/img/twitter_bt.png") no-repeat center center;
+	background-size:cover;
+	z-index: 999;
+	-webkit-transition: 0.5s ease;
+	   -moz-transition: 0.5s ease;
+	    -ms-transition: 0.5s ease;
+	     -o-transition: 0.5s ease;
+	        transition: 0.5s ease;
+}
+#twitter_bt:hover{
+	-webkit-transform: translateY(5px);
+	   -moz-transform: translateY(5px);
+	    -ms-transform: translateY(5px);
+	     -o-transform: translateY(5px);
+	        transform: translateY(5px);
+}
+
+@font-face {
+	font-family: 'logotype';
+	src: url('font/logotype.woff') format('woff'), url('font/logotype.ttf') format('truetype');
+}
+
+#version {
+	position:absolute;
+	display:block;
+	width:200px;
+	height:25px;
+	bottom:20px;
+	left:20px;
+	font-family: 'logotype';
+	font-size: 25px;
+	vertical-align: bottom;
+	color: #ffffff;
+	text-shadow: rgba(0,0,0,0.6) 1px 1px 10px, rgba(0,0,0,0.6) -1px 1px 10px,
+	             rgba(0,0,0,0.6) 1px -1px 10px, rgba(0,0,0,0.6) -1px -1px 10px;
+	z-index: 998;
+}
+
+</style>
+</head>
+<body>
+
+<div id="dummy">
+<div id="html_overlay">
+<a href="#"><span id="twitter_bt"></span></a>
+<div id="scroller-wrapper">
+	<div id="scroller">
+
+		<div id="column1" class="column">
+			<div class="column-wrapper">
+				<div id="col1row1" class="row one">
+					<div class="cursol_right"></div>
+					<div class="cursol_bottom"></div>
+					<div id="version"></div>
+				</div>
+				<div id="col1row2" class="row two">
+					<div class="cursol_right"></div>
+					<div class="cursol_top"></div>
+					<div class="cursol_bottom"></div>
+					<div class="img_radius" id="iTunes"><div></div>
+					<div id="gotoiTunes" class="tap_box">
+					</div></div>
+<!-- 					<div class="img_radius" id="AmazonMP3"><div></div>
+					<div id="gotoAmazonMP3" class="tap_box">
+					</div></div> -->
+				</div>
+				<div id="col1row3" class="row two">
+					<div class="cursol_right"></div>
+					<div class="cursol_top"></div>
+					<div class="img_radius"><div></div>
+					<div id="gotoform" class="tap_box">
+					</div></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="column2" class="column">
+			<div class="column-wrapper">
+				<div id="col2row1" class="row one">
+					<div class="cursol_left"></div>
+					<div class="cursol_right"></div>
+					<div class="cursol_bottom"></div>
+					<div class="img_radius"><div></div>
+					<div id="startgame" class="tap_box">
+						<ul>
+							<li class="pushbt_0"><img src="plugin/html_overlay/html/img/playmenu_newgame.png" style="position:absolute;left:0px"></li>
+							<li class="pushbt_1"><img src="plugin/html_overlay/html/img/playmenu_newgame.png" style="position:absolute;left:-48px"></li>
+							<li class="pushbt_2"><img src="plugin/html_overlay/html/img/playmenu_newgame.png" style="position:absolute;left:-96px"></li>
+							<li class="pushbt_3"><img src="plugin/html_overlay/html/img/playmenu_newgame.png" style="position:absolute;left:-144px"></li>
+							<li class="pushbt_4"><img src="plugin/html_overlay/html/img/playmenu_newgame.png" style="position:absolute;left:-192px"></li>
+						</ul>
+					</div>
+					</div>
+				</div>
+				<div id="col2row2" class="row two">
+					<div class="cursol_left"></div>
+					<div class="cursol_right"></div>
+					<div class="cursol_top"></div>
+					<div class="cursol_bottom"></div>
+					<div class="img_radius"><div></div>
+					<div id="startgame2" class="tap_box">
+						<ul>
+							<li class="pushbt_0"><img src="plugin/html_overlay/html/img/playmenu_newgame2.png" style="position:absolute;left:0px"></li>
+							<li class="pushbt_1"><img src="plugin/html_overlay/html/img/playmenu_newgame2.png" style="position:absolute;left:-48px"></li>
+							<li class="pushbt_2"><img src="plugin/html_overlay/html/img/playmenu_newgame2.png" style="position:absolute;left:-96px"></li>
+							<li class="pushbt_3"><img src="plugin/html_overlay/html/img/playmenu_newgame2.png" style="position:absolute;left:-144px"></li>
+							<li class="pushbt_4"><img src="plugin/html_overlay/html/img/playmenu_newgame2.png" style="position:absolute;left:-192px"></li>
+						</ul>
+					</div>
+					</div>
+				</div>
+				<div id="col2row3" class="row three">
+					<div class="cursol_left"></div>
+					<div class="cursol_right"></div>
+					<div class="cursol_top"></div>
+					<div class="cursol_bottom"></div>
+					<div class="img_radius"><div></div>
+					<div id="loadgame" class="tap_box">
+						<ul>
+							<li class="pushbt_0"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:0px"></li>
+							<li class="pushbt_1"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:-48px"></li>
+							<li class="pushbt_2"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:-96px"></li>
+							<li class="pushbt_3"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:-144px"></li>
+							<li class="pushbt_4"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:-192px"></li>
+							<li class="pushbt_5"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:-240px"></li>
+							<li class="pushbt_6"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:-288px"></li>
+							<li class="pushbt_7"><img src="plugin/html_overlay/html/img/playmenu_latestsave.png" style="position:absolute;left:-336px"></li>
+						</ul>
+						</div>
+					</div>
+				</div>
+				<div id="col2row4" class="row four">
+					<div class="cursol_left"></div>
+					<div class="cursol_right"></div>
+					<div class="cursol_top"></div>
+					<div class="img_radius"><div></div>
+					<div id="qloadgame" class="tap_box">
+						<ul>
+							<li class="pushbt_0"><img src="plugin/html_overlay/html/img/playmenu_quicksave.png" style="position:absolute;left:0px"></li>
+							<li class="pushbt_1"><img src="plugin/html_overlay/html/img/playmenu_quicksave.png" style="position:absolute;left:-48px"></li>
+							<li class="pushbt_2"><img src="plugin/html_overlay/html/img/playmenu_quicksave.png" style="position:absolute;left:-96px"></li>
+							<li class="pushbt_3"><img src="plugin/html_overlay/html/img/playmenu_quicksave.png" style="position:absolute;left:-144px"></li>
+							<li class="pushbt_4"><img src="plugin/html_overlay/html/img/playmenu_quicksave.png" style="position:absolute;left:-192px"></li>
+						</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+
+<!-- chapters -->
+		<div id="column3" class="column">
+			<div class="column-wrapper">
+				<div id="col3row1" class="row">
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_1.png" alt="" class="chaptitle">
+					<div class="story1">
+						<div id="chapter1_0" class="img_radius chapss pos0">チュートリアル</div>
+						<div id="chapter1_1" class="img_radius chapss pos1">夢のはじまり</div>
+						<div id="chapter1_2" class="img_radius chapss pos2">幽霊の町</div>
+						<div id="chapter1_3" class="img_radius chapss pos3">それはいわゆる</div>
+					</div>
+					<div id="chap_noopen"></div>
+				</div>
+				<div id="col3row2" class="row story1 chap4">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_1.png" alt="" class="chaptitle">
+						<div id="chapter1_4" class="img_radius chapss pos0">溶ける</div>
+						<div id="chapter1_5" class="img_radius chapss pos1">いーい</div>
+						<div id="chapter1_6" class="img_radius chapss pos2">来客</div>
+						<div id="chapter1_7" class="img_radius chapss pos3">やりとり</div>
+				</div>
+				<div id="col3row3" class="row story1 chap8">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_1.png" alt="" class="chaptitle">
+						<div id="chapter1_8" class="img_radius chapss pos0">はじめてのはじまる日</div>
+						<div id="chapter1_9" class="img_radius chapss pos1">わたしとみんな</div>
+						<div id="chapter1_10" class="img_radius chapss pos2">ガベージ・コレクション</div>
+						<div id="chapter1_11" class="img_radius chapss pos3">ちゃんとしないと</div>
+				</div>
+				<div id="col3row4" class="row story1 chap12">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_1.png" alt="" class="chaptitle">
+						<div id="chapter1_12" class="img_radius chapss pos0">６０点の日</div>
+						<div id="chapter1_13" class="img_radius chapss pos1">＃＃＃の＃＃</div>
+						<div id="chapter1_14" class="img_radius chapss pos2">思い出</div>
+				</div>
+			<!-- chapter2 -->
+				<div id="col3row5" class="row story2 chap1">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_2.png" alt="" class="chaptitle">
+					<div class="story2">
+						<div id="chapter2_1" class="img_radius chapss pos0">夢のつづき</div>
+						<div id="chapter2_2" class="img_radius chapss pos1">身支度</div>
+						<div id="chapter2_3" class="img_radius chapss pos2">町をゆく</div>
+						<div id="chapter2_4" class="img_radius chapss pos3">老人と小夜子</div>
+					</div>
+					<!-- <div id="chap_noopen"></div> -->
+				</div>
+				<div id="col3row6" class="row story2 chap5">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_2.png" alt="" class="chaptitle">
+						<div id="chapter2_5" class="img_radius chapss pos0">外側</div>
+						<div id="chapter2_6" class="img_radius chapss pos1">だれでもいいから</div>
+						<div id="chapter2_7" class="img_radius chapss pos2">救済</div>
+						<div id="chapter2_8" class="img_radius chapss pos3">小夜子補導さる</div>
+				</div>
+				<div id="col3row7" class="row story2 chap9">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_2.png" alt="" class="chaptitle">
+						<div id="chapter2_9" class="img_radius chapss pos0">警察沙汰の日</div>
+						<div id="chapter2_10" class="img_radius chapss pos1">容疑者は冤罪を主張</div>
+						<div id="chapter2_11" class="img_radius chapss pos2">友達の家にて</div>
+						<div id="chapter2_12" class="img_radius chapss pos3">もっと会話を</div>
+				</div>
+				<div id="col3row8" class="row story2 chap13">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_2.png" alt="" class="chaptitle">
+						<div id="chapter2_13" class="img_radius chapss pos0">うんこからのうんこ</div>
+						<div id="chapter2_14" class="img_radius chapss pos1">まだそこに座れない</div>
+						<div id="chapter2_15" class="img_radius chapss pos2">教会へ</div>
+						<div id="chapter2_16" class="img_radius chapss pos3">神父</div>
+				</div>
+				<div id="col3row9" class="row story2 chap17">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_2.png" alt="" class="chaptitle">
+						<div id="chapter2_17" class="img_radius chapss pos0">あなたはいつまで</div>
+						<div id="chapter2_18" class="img_radius chapss pos1">造花とシスター</div>
+						<div id="chapter2_19" class="img_radius chapss pos2">やっと、</div>
+						<div id="chapter2_20" class="img_radius chapss pos3">やっと会えたね</div>
+				</div>
+				<div id="col3row10" class="row story2 chap21">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_2.png" alt="" class="chaptitle">
+						<div id="chapter2_21" class="img_radius chapss pos0">ハムとシスターと銃</div>
+						<div id="chapter2_22" class="img_radius chapss pos1">ニンジャ再始動す</div>
+						<div id="chapter2_23" class="img_radius chapss pos2">みがわり</div>
+						<div id="chapter2_24" class="img_radius chapss pos3">終了のお知らせ</div>
+				</div>
+				<div id="col3row11" class="row story2 chap25">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_2.png" alt="" class="chaptitle">
+						<div id="chapter2_25" class="img_radius chapss pos0">思い出</div>
+				</div>
+			<!-- chapter3 -->
+				<div id="col3row12" class="row">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_3.png" alt="" class="chaptitle">
+					<div class="story3">
+						<div id="chapter3_1" class="img_radius chapss pos0">チャプター1</div>
+						<div id="chapter3_2" class="img_radius chapss pos1">チャプター2</div>
+						<div id="chapter3_3" class="img_radius chapss pos2">チャプター3</div>
+						<div id="chapter3_4" class="img_radius chapss pos3">チャプター4</div>
+					</div>
+				</div>
+				<div id="col3row13" class="row">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<div class="cursol_bottom"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_3.png" alt="" class="chaptitle">
+						<div id="chapter3_5" class="img_radius chapss pos0">チャプター5</div>
+						<div id="chapter3_6" class="img_radius chapss pos1">チャプター6</div>
+						<div id="chapter3_7" class="img_radius chapss pos2">チャプター7</div>
+						<div id="chapter3_8" class="img_radius chapss pos3">チャプター8</div>
+				</div>
+				<div id="col3row14" class="row">
+					<div class="cursol_top"></div>
+					<div class="cursol_left"></div>
+					<img src="plugin/html_overlay/html/img/chaptermenu_story_3.png" alt="" class="chaptitle">
+						<div id="chapter3_9" class="img_radius chapss pos0">チャプター9</div>
+						<div id="chapter3_10" class="img_radius chapss pos1">チャプター10</div>
+						<div id="chapter3_11" class="img_radius chapss pos2">チャプター11</div>
+						<div id="chapter3_12" class="img_radius chapss pos3">チャプター12</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+</div>
+</div>
+</body>
+</html>
